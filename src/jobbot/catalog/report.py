@@ -65,17 +65,24 @@ def render_catalog_list(catalog: SourceCatalog, channels: list[Channel]) -> list
     return lines
 
 
-def render_discovery_plan(report: DiscoveryReport) -> list[str]:
+def render_discovery_plan(report: DiscoveryReport, *, limit: int = 10) -> list[str]:
     """Which sources could be explored, which need review, and why. Creates nothing."""
     lines = [f"Discovery plan — country {report.country or 'any'} (dry run, nothing read)"]
     counts = report.counts
-    ready = counts.get(OutcomeKind.READY.value, 0)
-    lines.append(f"  explorable now : {ready}")
+    lines.append(f"  explorable now : {counts.get(OutcomeKind.READY.value, 0)}")
     for kind, count in sorted(counts.items()):
         if kind != OutcomeKind.READY.value:
             lines.append(f"  {kind:<16}: {count}")
+    grouped: dict[tuple[str, str], list[str]] = {}
     for outcome in report.needs_review:
-        lines.append(f"  - {outcome.channel_id} [{outcome.kind.value}] {outcome.reason}")
+        grouped.setdefault((outcome.kind.value, outcome.reason), []).append(outcome.channel_id)
+    for (kind, reason), channel_ids in sorted(grouped.items()):
+        lines.append(f"  {kind} — {reason}")
+        shown = channel_ids if limit <= 0 else channel_ids[:limit]
+        lines.extend(f"    - {channel_id}" for channel_id in shown)
+        hidden = len(channel_ids) - len(shown)
+        if hidden:
+            lines.append(f"    … {hidden} more (--limit 0 lists them all)")
     lines.append("  No account was created and no application was sent.")
     return lines
 

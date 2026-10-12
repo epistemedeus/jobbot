@@ -4776,6 +4776,9 @@ def portals_catalog_plan(
     country: Annotated[str | None, typer.Option("--country", help="Hiring country (e.g. CL)")] = (
         None
     ),
+    limit: Annotated[
+        int, typer.Option("--limit", help="Omitted channels listed per reason (0 = all)")
+    ] = 10,
 ) -> None:
     """Dry run: which catalog sources could be explored, which need review and why."""
     from jobbot.catalog.composition import build_discovery_service
@@ -4789,7 +4792,7 @@ def portals_catalog_plan(
         return
     target = country or (config.search.countries[0] if config.search.countries else "")
     service = build_discovery_service(config, catalog)
-    for line in render_discovery_plan(service.plan(country=target)):
+    for line in render_discovery_plan(service.plan(country=target), limit=limit):
         console.print(line)
 
 

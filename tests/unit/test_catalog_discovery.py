@@ -19,6 +19,7 @@ from jobbot.catalog.models import (
     PlatformBinding,
     SourceType,
 )
+from jobbot.catalog.report import render_discovery_plan
 from jobbot.jobs.sources import JobSearchQuery, JobSourceAdapter
 from jobbot.models.job import JobPosting
 
@@ -237,6 +238,26 @@ def test_a_capability_nobody_checked_is_unknown_not_allowed() -> None:
 
     channel.assess(Capability.JOB_LISTING, CapabilityStatus.SUPPORTED, reason="fixture read")
     assert policy.assess(channel, Capability.JOB_LISTING).allowed is True
+
+
+def test_the_plan_groups_omitted_channels_by_reason_instead_of_one_line_each() -> None:
+    """A seeded catalog omits hundreds of channels; the dry run stays readable."""
+    service = _service(
+        StubSource([_posting()]),
+        None,
+        *(_channel(f"c{index:03d}", enabled=False) for index in range(25)),
+    )
+
+    lines = render_discovery_plan(service.plan(country="CL"), limit=3)
+
+    headings = [line for line in lines if line.startswith(f"  {OutcomeKind.DISABLED.value} — ")]
+    assert len(headings) == 1, "one shared reason is written once, not per channel"
+    assert sum(1 for line in lines if line.startswith("    - c")) == 3
+    assert "    … 22 more (--limit 0 lists them all)" in lines
+
+    everything = render_discovery_plan(service.plan(country="CL"), limit=0)
+    assert sum(1 for line in everything if line.startswith("    - c")) == 25
+    assert not [line for line in everything if "more (--limit" in line]
 
 
 def test_the_registry_only_runs_factories_it_was_given() -> None:
