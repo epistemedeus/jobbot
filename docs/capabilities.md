@@ -8,7 +8,7 @@ writing it again — the promotion rule lives in
 [AGENTS.md](https://github.com/ljofreflor/jobbot/blob/main/AGENTS.md), section
 "Design economics".
 
-113 commands, 161 modules, 837 public symbols.
+116 commands, 167 modules, 886 public symbols.
 
 ## Commands
 
@@ -91,6 +91,9 @@ writing it again — the promotion rule lives in
 - `jobbot ops symptom show` — Show one symptom (already redacted at write time).
 - `jobbot ops symptom triage` — Update symptom status after review / compression.
 - `jobbot portals add` — Add or update a portal in data/portals.yaml.
+- `jobbot portals catalog import` — Import researched hiring channels as disabled candidates (counts must match).
+- `jobbot portals catalog list` — List catalog channels with what was observed about each one.
+- `jobbot portals catalog plan` — Dry run: which catalog sources could be explored, which need review and why.
 - `jobbot portals detect` — Detect ATS kind for a URL.
 - `jobbot portals form-learn` — Learn what an application form asks. Reads only; never fills or submits.
 - `jobbot portals list` — List known recruitment portals.
@@ -224,6 +227,15 @@ writing it again — the promotion rule lives in
 - `session.py` — Persistent Playwright browser session. · `BrowserTimeouts`, `launch_persistent_kwargs`, `BrowserSession`
 - `sessions.py` — Preflight for browser sessions: what JobBot can actually reach right now. · `SessionStatus`, `session_blocks_open`, `refuse_to_open`, `SiteSpec`, `site_spec`, `AccountExpectation`, `CdpEndpoint`, `ChromeProcess`, `SessionState`, `ProfileBusyError`, `fetch_local_json`, `discover_endpoints`, `list_chrome_processes`, `profile_holders`, `ensure_profile_free`, `inspect_sessions`, `session_for`, `judge_account`, `free_debug_port`
 
+### `catalog`
+
+- `composition.py` — Composition root: the one place that wires repository, policy and registry together. · `legacy_source_factory`, `default_source_registry`, `build_discovery_service`
+- `discovery.py` — Discovery over the catalog: contracts, outcomes and the service that joins them. · `UnsupportedSourceError`, `OutcomeKind`, `AccessDecision`, `ChannelRepository`, `AccessPolicy`, `SourceRegistry`, `ChannelOutcome`, `DiscoveryReport`, `DiscoveryService`, `CatalogChannelRepository`, `CapabilityAccessPolicy`, `AdapterKeyRegistry`
+- `models.py` — Employer ↔ channel catalog model (public knowledge; never candidate data). · `SourceType`, `ReadState`, `ChannelRelation`, `Capability`, `CapabilityStatus`, `CapabilityAssessment`, `PlatformBinding`, `ChannelHealth`, `Channel`, `Employer`, `EmployerChannel`
+- `registry.py` — The catalog itself: lookups, writes under evidence, persistence and review diff. · `ChannelNotEnabled`, `SourceCatalog`, `channel_id_for`, `employer_id_for`, `CatalogDiff`, `diff_catalogs`, `default_catalog_path`, `load_catalog`, `save_catalog`
+- `report.py` — Human-readable reports for the catalog import and the discovery dry run. · `render_import_report`, `render_catalog_list`, `render_discovery_plan`
+- `seed.py` — Import a researched inventory of hiring channels into the catalog, losing nothing. · `SeedChannel`, `SeedExpectations`, `SeedDocument`, `IssueLevel`, `ImportIssue`, `ImportReport`, `load_seed`, `import_seed`
+
 ### `companies`
 
 - `discovery.py` — Classify a URL as posting / corporate career portal / ATS instance / redirect. · `SiteClassification`, `classify_url`, `career_root_url`, `career_page_evidence`
@@ -233,7 +245,7 @@ writing it again — the promotion rule lives in
 - `recon.py` — Learn portal truth from a page you are already on (issue #45). · `ReconReport`, `ReconError`, `resolve_recon_site`, `recon_from_html`, `plan_recon`
 - `registry.py` — Local registry of company ↔ career platforms (candidate → promote → shareable). · `ObserveOutcome`, `CompanyRegistry`, `default_companies_path`, `generated_candidates_path`, `shared_export_path`, `load_companies`, `save_companies`, `active_career_sites`, `shareable_payload`
 - `signup.py` — Assemble what a portal registration will ask — and what the profile already answers. · `AccountNeed`, `SignupTarget`, `SignupItem`, `account_need`, `signup_target`, `signup_sheet`, `screening_to_prepare`
-- `urls.py` — URL normalization for shareable career-site knowledge (no personal tokens). · `PrivateRouteRejected`, `ReservedDomainRejected`, `public_url`, `canonical_key`, `host_of`, `display_url`, `is_reserved_host`, `ensure_not_reserved`, `registrable_domain`, `slugify`, `company_hint_from_url`
+- `urls.py` — URL normalization for shareable career-site knowledge (no personal tokens). · `PrivateRouteRejected`, `ReservedDomainRejected`, `public_url`, `canonical_key`, `is_tracking_param`, `semantic_url`, `semantic_key`, `host_of`, `display_url`, `is_reserved_host`, `ensure_not_reserved`, `registrable_domain`, `slugify`, `company_hint_from_url`
 
 ### `cv`
 

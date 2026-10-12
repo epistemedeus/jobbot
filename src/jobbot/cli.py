@@ -112,6 +112,10 @@ empleospublicos_app = typer.Typer(
     no_args_is_help=True,
 )
 portals_app = typer.Typer(help="Recruitment portal registry (ATS)", no_args_is_help=True)
+portals_catalog_app = typer.Typer(
+    help="Employer ↔ channel catalog: import researched sources, review, plan (never enables)",
+    no_args_is_help=True,
+)
 companies_app = typer.Typer(
     help="Company ↔ career platform knowledge (candidate → promote; public data only)",
     no_args_is_help=True,
@@ -152,6 +156,7 @@ app.add_typer(torre_app, name="torre")
 app.add_typer(empleospublicos_app, name="empleospublicos")
 app.add_typer(browser_app, name="browser")
 app.add_typer(portals_app, name="portals")
+portals_app.add_typer(portals_catalog_app, name="catalog")
 app.add_typer(companies_app, name="companies")
 app.add_typer(recruiters_app, name="recruiters")
 app.add_typer(ops_app, name="ops")
@@ -4694,6 +4699,98 @@ def empleospublicos_search(
     )
     if candidate is not None:
         _warn_if_matcher_blind(scores)
+
+
+@portals_catalog_app.command("import")
+def portals_catalog_import(
+    seed: Annotated[Path, typer.Argument(help="Researched inventory (YAML)")],
+    apply_changes: Annotated[
+        bool,
+        typer.Option("--apply", help="Write the catalog (default: dry run, writes nothing)"),
+    ] = False,
+) -> None:
+    """Import researched hiring channels as disabled candidates (counts must match)."""
+    from jobbot.catalog.registry import load_catalog, save_catalog
+    from jobbot.catalog.report import render_import_report
+    from jobbot.catalog.seed import import_seed, load_seed
+
+    config = load_config()
+    if not seed.is_file():
+        console.print(f"[red]Seed not found:[/red] {seed}")
+        raise typer.Exit(VALIDATION_FAILURE)
+    path = config.catalog_path
+    catalog = load_catalog(path)
+    updated, report = import_seed(load_seed(seed), catalog)
+    applied = apply_changes and report.ok
+    if applied:
+        save_catalog(updated, path)
+    for line in render_import_report(report, applied=applied):
+        console.print(line)
+    if not report.ok:
+        console.print("[red]Nothing written:[/red] fix the seed or the expected counts first.")
+        raise typer.Exit(VALIDATION_FAILURE)
+    if applied:
+        console.print(f"Catalog: {path}")
+
+
+@portals_catalog_app.command("list")
+def portals_catalog_list(
+    employer: Annotated[str | None, typer.Option("--employer", help="Filter by employer")] = None,
+    sector: Annotated[str | None, typer.Option("--sector")] = None,
+    ats: Annotated[str | None, typer.Option("--ats", help="Observed ATS family")] = None,
+    limit: Annotated[int, typer.Option("--limit")] = 40,
+) -> None:
+    """List catalog channels with what was observed about each one."""
+    from jobbot.catalog.registry import load_catalog
+    from jobbot.catalog.report import render_catalog_list
+
+    config = load_config()
+    catalog = load_catalog(config.catalog_path)
+    if not catalog.channels:
+        console.print("Catalog empty. Import one: jobbot portals catalog import SEED --apply")
+        return
+    channels = catalog.channels
+    if employer:
+        record = catalog.find_employer(employer)
+        channels = catalog.channels_of(record.employer_id) if record else []
+    if sector:
+        folded = sector.casefold()
+        wanted = {e.employer_id for e in catalog.employers if (e.sector or "").casefold() == folded}
+        channels = [
+            c
+            for c in channels
+            if any(e.employer_id in wanted for e in catalog.employers_of(c.channel_id))
+        ]
+    if ats:
+        channels = [c for c in channels if c.platform.ats_family.casefold() == ats.casefold()]
+    for line in render_catalog_list(catalog, channels[:limit]):
+        console.print(line)
+    console.print(
+        f"{len(channels)} channels (showing {min(limit, len(channels))}); "
+        f"{sum(1 for c in channels if c.enabled)} enabled"
+    )
+
+
+@portals_catalog_app.command("plan")
+def portals_catalog_plan(
+    country: Annotated[str | None, typer.Option("--country", help="Hiring country (e.g. CL)")] = (
+        None
+    ),
+) -> None:
+    """Dry run: which catalog sources could be explored, which need review and why."""
+    from jobbot.catalog.composition import build_discovery_service
+    from jobbot.catalog.registry import load_catalog
+    from jobbot.catalog.report import render_discovery_plan
+
+    config = load_config()
+    catalog = load_catalog(config.catalog_path)
+    if not catalog.channels:
+        console.print("Catalog empty. Import one: jobbot portals catalog import SEED --apply")
+        return
+    target = country or (config.search.countries[0] if config.search.countries else "")
+    service = build_discovery_service(config, catalog)
+    for line in render_discovery_plan(service.plan(country=target)):
+        console.print(line)
 
 
 @portals_app.command("list")
