@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import parse_qsl, quote, urlencode, urlparse, urlunparse
 
 
 class PrivateRouteRejected(ValueError):
@@ -84,6 +84,94 @@ def canonical_key(url: str) -> str:
     normalized = public_url(url)
     parsed = urlparse(normalized)
     return f"{parsed.netloc}{parsed.path}".casefold()
+
+
+# Parameters identified as tracking, each one seen on a career link we stored:
+# share referrers (``source=linkedin``, ``src``), campaign ids (``utm_*``, ``icid``),
+# ad click ids and LinkedIn's per-member ``rcm`` / ``trk``. Everything else is kept:
+# a query string is also where a portal puts the tenant, the country and the search.
+_TRACKING_PARAMS: frozenset[str] = frozenset(
+    {
+        "_ga",
+        "fbclid",
+        "gclid",
+        "icid",
+        "igshid",
+        "mc_cid",
+        "mc_eid",
+        "msclkid",
+        "rcm",
+        "ref_src",
+        "referrer",
+        "source",
+        "spm",
+        "src",
+        "trackingid",
+        "trk",
+        "trkcampaignid",
+    }
+)
+_TRACKING_PREFIXES: tuple[str, ...] = ("utm_",)
+
+
+def is_tracking_param(name: str) -> bool:
+    folded = (name or "").strip().casefold()
+    return folded in _TRACKING_PARAMS or folded.startswith(_TRACKING_PREFIXES)
+
+
+def semantic_url(url: str) -> str:
+    """
+    Shareable URL that keeps the query a portal needs and drops the tracking it does not.
+
+    ``public_url`` throws the whole query away, which is right for a career portal whose
+    identity is its path. It is wrong for a listing whose tenant, country or site lives in
+    the query (``?c=cencosud``, ``?company=AMSAP``, ``?countries[]=Chile``): dropping those
+    turns a listing into somebody else's.
+    """
+    raw = (url or "").strip()
+    if not raw:
+        msg = "empty URL"
+        raise PrivateRouteRejected(msg)
+    if raw.lower().startswith("mailto:"):
+        msg = "email apply routes are personal data, not company knowledge"
+        raise PrivateRouteRejected(msg)
+    if not re.match(r"^https?://", raw, re.I):
+        raw = f"https://{raw}"
+    parsed = urlparse(raw)
+    host = (parsed.hostname or "").lower()
+    if not host:
+        msg = f"URL without host: {url!r}"
+        raise PrivateRouteRejected(msg)
+    # A catalog row is typed by a human: "empresa demo" is a note, not a host.
+    if any(ch.isspace() for ch in host) or "." not in host:
+        msg = f"not a host name: {host!r} (from {url!r})"
+        raise PrivateRouteRejected(msg)
+    netloc = host if parsed.port is None else f"{host}:{parsed.port}"
+    path = re.sub(r"/{2,}", "/", parsed.path or "")
+    scheme = parsed.scheme.lower() if parsed.scheme in {"http", "https"} else "https"
+    kept = [
+        (name, value)
+        for name, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if not is_tracking_param(name)
+    ]
+    query = urlencode(kept, quote_via=quote)
+    return urlunparse((scheme, netloc, path, "", query, ""))
+
+
+def semantic_key(url: str) -> str:
+    """
+    Dedup key that survives ``www.``, a trailing slash and parameter order.
+
+    Two tenants can share a host (``jobs.airavirtual.com/<tenant>``), so the key keeps the
+    path and the semantic query; only identified tracking is dropped.
+    """
+    parsed = urlparse(semantic_url(url))
+    host = (parsed.hostname or "").removeprefix("www.")
+    netloc = host if parsed.port is None else f"{host}:{parsed.port}"
+    path = (parsed.path or "").rstrip("/")
+    params = sorted(parse_qsl(parsed.query, keep_blank_values=True))
+    query = urlencode(params, quote_via=quote)
+    return f"{netloc}{path}{'?' + query if query else ''}".casefold()
 
 
 def host_of(url: str) -> str:
