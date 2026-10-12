@@ -231,6 +231,22 @@ Baseline may be updated only via **confirmed** market feedback (`profile suggest
  es un **oneshot** que escribe candidatos en `output/discovery/` y nunca toca `data/companies.yaml`;
  HTTP 200 no es evidencia y un sitio que nos rechaza (403/conexión cortada) se reporta como
  desconocido, no como ausencia. Compartir siempre vía `companies export` (solo activos, sin PII).
+- **Catálogo de fuentes (empleador ↔ canal):** una investigación de dónde publica cada
+  empleador entra con `portals catalog import SEED` (dry-run; `--apply` escribe). La
+  relación es muchos a muchos: un empleador usa varios canales y un canal de grupo publica
+  para varias filiales (`EmployerChannel` guarda la relación y su evidencia). La familia
+  ATS es lo que mostró la página, no una capacidad: cada `CapabilityAssessment` nace
+  `unknown` y **nada se habilita por estar indexado o por correr sobre un ATS conocido**
+  (`SourceCatalog.enable` exige una capacidad `supported` registrada). El importador
+  reproduce los conteos declarados o no escribe; una URL conserva los parámetros
+  semánticos (tenant, país, búsqueda) y pierde solo el seguimiento identificado
+  (`semantic_url` / `semantic_key` en `companies/urls.py`). Leer falló, no hay vacantes,
+  la página no se extrajo, el acceso está bloqueado y el portal cerró son cinco resultados
+  distintos: un 403 nunca se vuelve cero ofertas. `portals catalog plan` es dry-run puro
+  (no lee nada, no crea cuentas, no postula). La semilla chilena del 2026-10-12 vive en
+  `data/sources-cl.example.yaml`; el catálogo importado (`data/source_catalog.yaml`) es
+  local. Diseño y correspondencia con los modelos actuales:
+  [docs/source-catalog.md](docs/source-catalog.md).
 - **Recon por dentro ([#45](https://github.com/ljofreflor/jobbot/issues/45)):** el oneshot mira
   **desde fuera**; la verdad de componentes (ATS, campos de registro, dónde se sube el CV) se
   aprende **entrando**. `companies recon NOMBRE` captura el HTML de la página (fixture o CDP
@@ -594,6 +610,9 @@ uv run jobbot ops failure work F0001           # bash lane: issue→branch→PR�
 uv run jobbot ops failure work F0001 --apply   # HITL: issue + fetch + checkout -b
 uv run jobbot ops loop --cmd getonboard-prepare --interval 300
 uv run jobbot portals list|add|detect
+uv run jobbot portals catalog import data/sources-cl.example.yaml   # dry-run; --apply escribe
+uv run jobbot portals catalog list --ats trabajando   # canales con lo observado
+uv run jobbot portals catalog plan --country CL       # qué explorar / qué revisar (dry-run)
 uv run jobbot portals form-learn URL --fetch          # qué pide un formulario (solo lee)
 uv run jobbot portals form-learn URL --fixture page.html
 uv run jobbot recruiters discover URL                 # prácticas públicas → candidatas
