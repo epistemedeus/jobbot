@@ -8,7 +8,7 @@ writing it again — the promotion rule lives in
 [AGENTS.md](https://github.com/ljofreflor/jobbot/blob/main/AGENTS.md), section
 "Design economics".
 
-113 commands, 161 modules, 837 public symbols.
+113 commands, 161 modules, 846 public symbols.
 
 ## Commands
 
@@ -51,7 +51,7 @@ writing it again — the promotion rule lives in
 - `jobbot getonboard search` — Search Get on Board (Spanish/LATAM) and store jobs locally.
 - `jobbot getonboard show-profile` — Show paths / char counts for the permanent GoB profile maintainer.
 - `jobbot getonboard sync` — Maintain permanent GoB profile: regenerate texts; optionally open editors.
-- `jobbot getonboard upload-cv` — Validate the local CV PDF, then upload it to Get on Board Tus CVs.
+- `jobbot getonboard upload-cv` — Validate and upload the CV PDF; warn that GoB may rewrite the profile from it.
 - `jobbot indeed diff` — Diff local profile vs Indeed snapshot.
 - `jobbot indeed inspect` — Inspect Indeed page roles/labels for selector development.
 - `jobbot indeed login` — Open Indeed login (HITL). Prefer email/magic link; optional --continue-url.
@@ -173,7 +173,7 @@ writing it again — the promotion rule lives in
 - `draft.py` — Permanent Get on Board profile fields from Candidate (facts only; Spanish). · `PermanentProfileFields`, `build_permanent_profile_fields`, `draft_getonboard_fields`, `render_permanent_profile_markdown`, `render_getonboard_markdown`, `permanent_profile_dir`, `permanent_profile_yaml_path`, `permanent_profile_md_path`, `save_permanent_profile`, `fields_from_seed_text`, `load_permanent_profile`, `recent_roles`, `role_label`, `role_head`
 - `jobs.py` — Get on Board job source (LATAM/ES) via public search API + hard-link pages. · `GetOnBoardJobSource`, `search_jobs_api`, `slug_from_url`, `fetch_job_html`, `parse_job_html`, `job_from_hard_link`, `job_from_api_item`, `remember_portal`, `remember_portal_from_url`
 - `package.py` — Get on Board profile + CV sync package from Candidate (facts only). · `GetOnBoardSyncPackage`, `build_getonboard_sync_package`, `render_getonboard_sync_markdown`
-- `profile_edit.py` — Write the permanent Get on Board profile through its own edit form. · `GobField`, `FieldWrite`, `ElementLike`, `PageLike`, `read_current`, `plan_writes`, `apply_writes`, `desired_from_fields`
+- `profile_edit.py` — Write the permanent Get on Board profile through its own edit form. · `MissingGobFieldError`, `HiddenSyncError`, `GobField`, `FieldWrite`, `LocatedField`, `matched_selector_is_trix`, `ElementLike`, `KeyboardLike`, `PageLike`, `locate_field`, `absent_fields`, `read_current`, `require_fields`, `plan_writes`, `apply_writes`, `set_country`, `desired_from_fields`
 
 ### `adapters/gmail`
 

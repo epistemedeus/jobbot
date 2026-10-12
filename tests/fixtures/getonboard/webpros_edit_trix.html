@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Editar perfil (Trix fixture)</title></head>
+<body>
+<form action="/webpros" method="post">
+  <label>Descripción profesional</label>
+  <input type="text" name="webpro[description_es]" value="Data professional." />
+
+  <label>Perfil profesional y experiencia laboral</label>
+  <input type="hidden" name="webpro[professional_background_es]" id="webpro_professional_background_es" value="Experiencia previa." />
+  <trix-editor id="trix-professional_es" input="webpro_professional_background_es">Experiencia previa.</trix-editor>
+
+  <label>Formación académica y estudios</label>
+  <input type="hidden" name="webpro[academic_background_es]" id="webpro_academic_background_es" value="Magíster." />
+  <trix-editor id="trix-academic_background_es" input="webpro_academic_background_es">Magíster.</trix-editor>
+
+  <label>¿Dónde vives?</label>
+  <select name="webpro[country]" class="chzn-select" style="display:none">
+    <option value=""></option>
+    <option value="CL" selected>Chile</option>
+    <option value="AR">Argentina</option>
+  </select>
+
+  <input type="submit" value="Guardar cambios" />
+</form>
+</body>
+</html>

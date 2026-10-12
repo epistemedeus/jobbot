@@ -2490,6 +2490,8 @@ def _propagate_getonboard(
     from jobbot.adapters.getonboard.draft import load_permanent_profile
     from jobbot.adapters.getonboard.profile_edit import (
         GOB_EDIT_URL,
+        HiddenSyncError,
+        MissingGobFieldError,
         apply_writes,
         desired_from_fields,
         plan_writes,
@@ -2516,7 +2518,11 @@ def _propagate_getonboard(
         page = browser.page
         page.goto(GOB_EDIT_URL, wait_until="domcontentloaded")
         page.wait_for_timeout(1500)
-        writes = plan_writes(read_current(page), desired)
+        try:
+            writes = plan_writes(read_current(page), desired)
+        except MissingGobFieldError as exc:
+            err_console.print(f"[red]{exc}[/red]")
+            raise typer.Exit(GENERIC_FAILURE) from exc
         if not writes:
             console.print("getonboard: el portal ya tiene estos textos.")
         else:
@@ -2528,7 +2534,11 @@ def _propagate_getonboard(
             ):
                 console.print("getonboard: skipped profile fields.")
             else:
-                done = apply_writes(page, writes)
+                try:
+                    done = apply_writes(page, writes)
+                except (MissingGobFieldError, HiddenSyncError) as exc:
+                    err_console.print(f"[red]{exc}[/red]")
+                    raise typer.Exit(GENERIC_FAILURE) from exc
                 console.print(f"[green]Wrote[/green] {len(done)} field(s) on Get on Board.")
     _propagate_getonboard_cv(config, cdp=cdp, yes=yes)
 
@@ -2573,6 +2583,9 @@ def _propagate_getonboard_cv(
         f"[green]Uploaded[/green] {result.path.name} as {result.label!r} "
         f"(default={result.is_default}) → {result.resumes_url}"
     )
+    from jobbot.adapters.getonboard.profile_edit import CV_REWRITE_NOTICE
+
+    console.print(f"[yellow]{CV_REWRITE_NOTICE}[/yellow]")
 
 
 def _propagate_indeed(config: JobbotConfig, *, section: str, cdp: str | None, yes: bool) -> None:
@@ -4337,7 +4350,7 @@ def getonboard_upload_cv(
         typer.Option("--cv", help="PDF to upload (default: output/base/cv.pdf)"),
     ] = None,
 ) -> None:
-    """Validate the local CV PDF, then upload it to Get on Board Tus CVs."""
+    """Validate and upload the CV PDF; warn that GoB may rewrite the profile from it."""
     from jobbot.adapters.getonboard.cv_upload import (
         GobCvUploadError,
         resolve_base_cv,
@@ -4385,6 +4398,9 @@ def getonboard_upload_cv(
         f"[green]Uploaded[/green] {result.path.name} as {result.label!r} "
         f"(default={result.is_default}) → {result.resumes_url}"
     )
+    from jobbot.adapters.getonboard.profile_edit import CV_REWRITE_NOTICE
+
+    console.print(f"[yellow]{CV_REWRITE_NOTICE}[/yellow]")
 
 
 @getonboard_app.command("open-cvs")

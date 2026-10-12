@@ -52,6 +52,14 @@ class RecordingInput:
         self.value = value
 
 
+class _NoKeyboard:
+    def press(self, key: str) -> None:  # pragma: no cover - Trix path only
+        raise AssertionError(f"keyboard unused on Trix fixture: {key}")
+
+    def insert_text(self, text: str) -> None:  # pragma: no cover
+        raise AssertionError(f"keyboard unused on Trix fixture: {text}")
+
+
 class RecordingPage:
     def __init__(self) -> None:
         from jobbot.adapters.getonboard.profile_edit import FIELDS
@@ -64,6 +72,7 @@ class RecordingPage:
         self.elements = {f.selector: by_key[f.key] for f in FIELDS}
         self.clicked: list[str] = []
         self.visited: list[str] = []
+        self.keyboard = _NoKeyboard()
 
     def goto(self, url: str, **_: Any) -> None:
         self.visited.append(url)

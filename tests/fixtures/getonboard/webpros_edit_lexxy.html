@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Editar perfil (Lexxy fixture)</title></head>
+<body>
+<form action="/webpros" method="post">
+  <label>Descripción profesional</label>
+  <input type="text" name="webpro[description_es]" value="Public health professional." />
+
+  <label>Perfil profesional y experiencia laboral</label>
+  <input type="hidden" name="webpro[professional_background_es]" id="webpro_professional_background_es" value="Campo epidemiolx." />
+  <div
+    id="trix-professional_es-content"
+    class="lexxy-editor__content"
+    contenteditable="true"
+    role="textbox"
+  >Campo epidemiolx.</div>
+
+  <label>Formación académica y estudios</label>
+  <input type="hidden" name="webpro[academic_background_es]" id="webpro_academic_background_es" value="FETP." />
+  <div
+    id="trix-academic_background_es-content"
+    class="lexxy-editor__content"
+    contenteditable="true"
+    role="textbox"
+  >FETP.</div>
+
+  <label>¿Dónde vives?</label>
+  <select name="webpro[country]" class="chzn-select" style="display:none">
+    <option value=""></option>
+    <option value="CL" selected>Chile</option>
+    <option value="PE">Perú</option>
+  </select>
+
+  <input type="submit" value="Guardar cambios" />
+</form>
+</body>
+</html>

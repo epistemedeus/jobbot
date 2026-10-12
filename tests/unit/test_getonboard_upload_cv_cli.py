@@ -54,6 +54,54 @@ def test_dry_run_prints_the_hash_and_does_not_open_a_browser(
     assert "Dry-run" in out
 
 
+def test_successful_upload_warns_that_gob_may_rewrite_the_profile(
+    tmp_path: Path,
+    project_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    _workspace(tmp_path, project_root, monkeypatch)
+    _write_pdf(tmp_path)
+    from jobbot.adapters.getonboard.cv_upload import CvUploadResult
+    from jobbot.adapters.getonboard.profile_edit import CV_REWRITE_NOTICE
+    from jobbot.cli import run_cli
+    from tests.conftest import plain_cli_text
+
+    class _Session:
+        def __enter__(self) -> _Session:
+            return self
+
+        def __exit__(self, *_a: object) -> None:
+            return None
+
+        @property
+        def page(self) -> object:
+            return object()
+
+    monkeypatch.setattr("jobbot.cli._getonboard_session", lambda *_a, **_k: _Session())
+
+    def _upload(page: object, path: Path, **_k: object) -> CvUploadResult:
+        return CvUploadResult(
+            label="CV base",
+            path=path,
+            listed=True,
+            is_default=True,
+        )
+
+    monkeypatch.setattr("jobbot.adapters.getonboard.cv_upload.upload_cv", _upload)
+
+    assert (
+        run_cli(
+            ["getonboard", "upload-cv", "--apply", "--yes"],
+            standalone_mode=False,
+        )
+        == SUCCESS
+    )
+    out = plain_cli_text(capsys.readouterr().out)
+    assert "Estamos leyendo tu último CV" in out or CV_REWRITE_NOTICE.split("`")[0] in out
+    assert "cv sync --apply" in out
+
+
 def test_a_broken_pdf_never_reaches_the_browser(
     tmp_path: Path, project_root: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
