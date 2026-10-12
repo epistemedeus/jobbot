@@ -8,7 +8,7 @@ writing it again — the promotion rule lives in
 [AGENTS.md](https://github.com/ljofreflor/jobbot/blob/main/AGENTS.md), section
 "Design economics".
 
-116 commands, 167 modules, 886 public symbols.
+117 commands, 168 modules, 896 public symbols.
 
 ## Commands
 
@@ -91,6 +91,7 @@ writing it again — the promotion rule lives in
 - `jobbot ops symptom show` — Show one symptom (already redacted at write time).
 - `jobbot ops symptom triage` — Update symptom status after review / compression.
 - `jobbot portals add` — Add or update a portal in data/portals.yaml.
+- `jobbot portals catalog coverage` — How much of the catalog JobBot reaches, and where you are present (evidence only).
 - `jobbot portals catalog import` — Import researched hiring channels as disabled candidates (counts must match).
 - `jobbot portals catalog list` — List catalog channels with what was observed about each one.
 - `jobbot portals catalog plan` — Dry run: which catalog sources could be explored, which need review and why.
@@ -229,11 +230,12 @@ writing it again — the promotion rule lives in
 
 ### `catalog`
 
-- `composition.py` — Composition root: the one place that wires repository, policy and registry together. · `legacy_source_factory`, `default_source_registry`, `build_discovery_service`
+- `composition.py` — Composition root: the one place that wires repository, policy and registry together. · `legacy_source_factory`, `default_source_registry`, `local_presence`, `build_discovery_service`
+- `coverage.py` — How much of the catalog JobBot can work, and where this candidate is actually present. · `ReachState`, `AdapterLookup`, `CoverageGroup`, `CoverageReport`, `reach_state`, `presence_keys`, `measure_coverage`
 - `discovery.py` — Discovery over the catalog: contracts, outcomes and the service that joins them. · `UnsupportedSourceError`, `OutcomeKind`, `AccessDecision`, `ChannelRepository`, `AccessPolicy`, `SourceRegistry`, `ChannelOutcome`, `DiscoveryReport`, `DiscoveryService`, `CatalogChannelRepository`, `CapabilityAccessPolicy`, `AdapterKeyRegistry`
 - `models.py` — Employer ↔ channel catalog model (public knowledge; never candidate data). · `SourceType`, `ReadState`, `ChannelRelation`, `Capability`, `CapabilityStatus`, `CapabilityAssessment`, `PlatformBinding`, `ChannelHealth`, `Channel`, `Employer`, `EmployerChannel`
 - `registry.py` — The catalog itself: lookups, writes under evidence, persistence and review diff. · `ChannelNotEnabled`, `SourceCatalog`, `channel_id_for`, `employer_id_for`, `CatalogDiff`, `diff_catalogs`, `default_catalog_path`, `load_catalog`, `save_catalog`
-- `report.py` — Human-readable reports for the catalog import and the discovery dry run. · `render_import_report`, `render_catalog_list`, `render_discovery_plan`
+- `report.py` — Human-readable reports for the catalog import and the discovery dry run. · `render_import_report`, `render_catalog_list`, `render_coverage`, `coverage_headline`, `render_discovery_plan`
 - `seed.py` — Import a researched inventory of hiring channels into the catalog, losing nothing. · `SeedChannel`, `SeedExpectations`, `SeedDocument`, `IssueLevel`, `ImportIssue`, `ImportReport`, `load_seed`, `import_seed`
 
 ### `companies`

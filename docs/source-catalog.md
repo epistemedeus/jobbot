@@ -128,6 +128,39 @@ Every channel ends in exactly one outcome, and a failure never becomes an empty 
 `plan` is the dry run: it reads nothing, creates no account, sends no application, and
 lists every omitted channel with its reason.
 
+## The indicator: one denominator, two numerators
+
+A list nobody is measured against stays decorative. `jobbot portals catalog coverage`
+turns the imported inventory into the denominator of the only coverage number we are
+willing to publish, and `jobbot status` carries its headline so the figure is in sight
+every day.
+
+```text
+Catalog coverage — CL · catalog 0.1.0 · capability job_listing
+  channels        : 249 (194 employers)
+  JobBot reach    : 0.0% — 0 proven, 0 wired, 249 pending
+  your presence   : 0.0% — 0 of 249 with local evidence
+```
+
+Two numerators answer two different questions over the same 249:
+
+- **JobBot reach** is about the tool. A channel is `proven` when a capability was
+  assessed `supported` on it, `wired` when an adapter is registered for its platform and
+  nothing is proven yet, `pending` otherwise. Belonging to a known ATS moves nothing:
+  the seed ships every channel pending, so the indicator starts honest at 0%.
+- **Your presence** is about the person, and counts local receipts only. A channel with
+  no receipt is *unverified*, never *absent* — the same rule `jobbot status` already
+  applies to a portal with no page evidence.
+
+The pending side is ordered as a roadmap: an ATS family with no adapter carries how many
+channels and employers implementing it would unlock, which is what makes Trabajando (60
+channels), Aira (42) and HiringRoom (22) the next pilots (#241, #243). Channels whose
+platform nobody named yet are reported apart, because they need recon (#45), not an
+adapter.
+
+The denominator travels with the number everywhere, and it is the catalog in scope —
+never "all the portals in Chile", which has no census.
+
 ## What this layer deliberately does not do
 
 - It does not apply. `ApplicationPreparer` / `ApplicationSubmitter` are separate contracts
@@ -142,6 +175,7 @@ lists every omitted channel with its reason.
 - Channel validation and employer/brand reconciliation (issue B).
 - Discovery pilots per ATS family — Trabajando (#241), HiringRoom (#243), Buk (#242) —
   one source per family, each with its own fixture tests (issue C).
-- Change tracking, coverage metrics against a versioned target universe, regional
-  expansion (issue D). Coverage is never "percentage of all Chilean portals": without a
-  declared denominator that number means nothing.
+- Change tracking and regional expansion (issue D): the coverage indicator above measures
+  the catalog in scope; a *target universe* per sector and region is the next denominator
+  to version. Coverage is never "percentage of all Chilean portals": without a declared
+  denominator that number means nothing.

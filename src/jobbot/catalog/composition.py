@@ -45,6 +45,18 @@ def default_source_registry(config: JobbotConfig) -> AdapterKeyRegistry:
     )
 
 
+def local_presence(config: JobbotConfig) -> dict[str, str]:
+    """Portal receipts this workspace already holds, keyed as the catalog looks them up.
+
+    Evidence lives where `jobbot status` writes it; coverage only reads it, so a channel
+    with no receipt stays unverified instead of becoming a claim.
+    """
+    from jobbot.cv.company_apply import load_company_receipts
+
+    receipts = load_company_receipts(config.output_dir)
+    return {key: receipt.evidence for key, receipt in receipts.items()}
+
+
 def build_discovery_service(
     config: JobbotConfig,
     catalog: SourceCatalog,

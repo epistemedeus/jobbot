@@ -538,11 +538,34 @@ def _print_cv_status(*, as_json: bool) -> None:
             row.hint or "",
         )
     console.print(table)
+    headline = _catalog_headline(config)
+    if headline:
+        console.print(headline)
     console.print(
         "[dim]Evidence only — missing receipt means unknown, not absent on the portal. "
         "Active company portals need page evidence; a yes is never a receipt. "
         "Per-job apply stages: jobbot applications list[/dim]"
     )
+
+
+def _catalog_headline(config: JobbotConfig) -> str | None:
+    """Coverage against the imported catalog, or nothing when no catalog was imported."""
+    from jobbot.catalog.composition import default_source_registry, local_presence
+    from jobbot.catalog.coverage import measure_coverage
+    from jobbot.catalog.registry import load_catalog
+    from jobbot.catalog.report import coverage_headline
+
+    catalog = load_catalog(config.catalog_path)
+    if not catalog.channels:
+        return None
+    country = config.search.countries[0] if config.search.countries else ""
+    report = measure_coverage(
+        catalog,
+        country=country,
+        adapters=default_source_registry(config),
+        presence=local_presence(config),
+    )
+    return coverage_headline(report)
 
 
 def _ingest_with_progress(
@@ -4793,6 +4816,40 @@ def portals_catalog_plan(
     target = country or (config.search.countries[0] if config.search.countries else "")
     service = build_discovery_service(config, catalog)
     for line in render_discovery_plan(service.plan(country=target), limit=limit):
+        console.print(line)
+
+
+@portals_catalog_app.command("coverage")
+def portals_catalog_coverage(
+    country: Annotated[str | None, typer.Option("--country", help="Hiring country (e.g. CL)")] = (
+        None
+    ),
+    by: Annotated[str, typer.Option("--by", help="Group by ats or sector")] = "ats",
+    limit: Annotated[int, typer.Option("--limit", help="Groups listed (0 = all)")] = 10,
+    as_json: Annotated[bool, typer.Option("--json", help="Machine-readable report")] = False,
+) -> None:
+    """How much of the catalog JobBot reaches, and where you are present (evidence only)."""
+    from jobbot.catalog.composition import default_source_registry, local_presence
+    from jobbot.catalog.coverage import measure_coverage
+    from jobbot.catalog.registry import load_catalog
+    from jobbot.catalog.report import render_coverage
+
+    config = load_config()
+    catalog = load_catalog(config.catalog_path)
+    if not catalog.channels:
+        console.print("Catalog empty. Import one: jobbot portals catalog import SEED --apply")
+        return
+    target = country or (config.search.countries[0] if config.search.countries else "")
+    report = measure_coverage(
+        catalog,
+        country=target,
+        adapters=default_source_registry(config),
+        presence=local_presence(config),
+    )
+    if as_json:
+        console.print_json(data=report.to_dict())
+        return
+    for line in render_coverage(report, by=by, limit=limit):
         console.print(line)
 
 

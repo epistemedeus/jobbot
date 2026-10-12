@@ -8,11 +8,19 @@ from urllib.parse import urlparse
 
 import pytest
 
+from jobbot.catalog.composition import default_source_registry
+from jobbot.catalog.coverage import measure_coverage
 from jobbot.catalog.models import ChannelRelation, ReadState, SourceType
 from jobbot.catalog.registry import SourceCatalog
 from jobbot.catalog.seed import ImportReport, import_seed, load_seed
+from jobbot.config import JobbotConfig
 
 SEED = Path("data") / "sources-cl.example.yaml"
+
+
+def _config() -> JobbotConfig:
+    """The adapter keys that exist today; the catalog never invents one."""
+    return JobbotConfig()
 
 
 @lru_cache(maxsize=1)
@@ -162,3 +170,31 @@ def test_the_ats_family_is_an_observation_not_a_capability(
 
     assert {"trabajando", "hiringroom", "aira", "pandape", "luk"} <= families
     assert all(c.capabilities == [] for c in catalog.channels)
+
+
+def test_the_inventory_is_the_denominator_of_the_coverage_indicator(
+    imported: tuple[SourceCatalog, ImportReport],
+) -> None:
+    """The list is official the day it measures us: 249 channels, reach still 0%."""
+    catalog, _report = imported
+
+    report = measure_coverage(catalog, country="CL", adapters=default_source_registry(_config()))
+
+    assert (report.total.channels, report.total.employers) == (249, 194)
+    assert report.total.reach_pct == 0.0
+    assert report.total.presence_pct == 0.0
+    assert report.total.pending == 249
+
+
+def test_the_indicator_orders_the_work_by_how_many_channels_it_unlocks(
+    imported: tuple[SourceCatalog, ImportReport],
+) -> None:
+    catalog, _report = imported
+
+    report = measure_coverage(catalog, country="CL")
+    unlocks = {group.label: group.channels for group in report.unlocks}
+
+    assert unlocks["trabajando"] == 60
+    assert [g.label for g in report.unlocks][:3] == ["trabajando", "aira", "hiringroom"]
+    assert report.unidentified is not None
+    assert report.unidentified.channels == 92

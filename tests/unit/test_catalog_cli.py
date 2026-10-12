@@ -154,3 +154,47 @@ def test_list_shows_the_observed_platform_and_employer(
     assert "Empresa Demo" in out
     assert "Otra Demo" not in out
     assert "0 enabled" in out
+
+
+def test_coverage_reports_the_denominator_and_what_is_still_pending(
+    tmp_path: Path,
+    project_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seed = _workspace(tmp_path, project_root, monkeypatch)
+    import jobbot.cli as cli
+
+    _console(monkeypatch)
+    cli.run_cli(["portals", "catalog", "import", str(seed), "--apply"], standalone_mode=False)
+
+    buffer = _console(monkeypatch)
+    assert cli.run_cli(["portals", "catalog", "coverage"], standalone_mode=False) == SUCCESS
+
+    out = buffer.getvalue()
+    assert "channels        : 2 (2 employers)" in out
+    assert "JobBot reach    : 0.0%" in out
+    assert "your presence   : 0.0%" in out
+    assert "would unlock 1 channels" in out
+
+
+def test_status_carries_the_coverage_headline_when_a_catalog_exists(
+    tmp_path: Path,
+    project_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seed = _workspace(tmp_path, project_root, monkeypatch)
+    import jobbot.cli as cli
+
+    buffer = _console(monkeypatch)
+    assert cli.run_cli(["status"], standalone_mode=False) == SUCCESS
+    assert "JobBot reach" not in buffer.getvalue(), "no catalog, no indicator"
+
+    _console(monkeypatch)
+    cli.run_cli(["portals", "catalog", "import", str(seed), "--apply"], standalone_mode=False)
+
+    buffer = _console(monkeypatch)
+    assert cli.run_cli(["status"], standalone_mode=False) == SUCCESS
+
+    out = buffer.getvalue()
+    assert "CL: 2 channels" in out
+    assert "JobBot reach 0.0%" in out and "your presence 0.0%" in out

@@ -247,6 +247,17 @@ Baseline may be updated only via **confirmed** market feedback (`profile suggest
   `data/sources-cl.example.yaml`; el catálogo importado (`data/source_catalog.yaml`) es
   local. Diseño y correspondencia con los modelos actuales:
   [docs/source-catalog.md](docs/source-catalog.md).
+- **El catálogo es el denominador, no un adorno:** `portals catalog coverage` mide dos
+  numeradores sobre los mismos canales y `jobbot status` lleva su titular. **Alcance de
+  JobBot**: `proven` (capacidad `supported` comprobada en ese canal), `wired` (hay
+  adaptador para su plataforma, nada probado todavía), `pending` (el resto). **Presencia
+  del candidato**: solo recibos locales; un canal sin recibo es *no verificado*, nunca
+  *ausente*. Lo pendiente se ordena como hoja de ruta — una familia ATS sin adaptador
+  carga cuántos canales y empleadores desbloquearía — y los canales sin plataforma
+  identificada se informan aparte porque piden recon
+  ([#45](https://github.com/ljofreflor/jobbot/issues/45)), no un adaptador. El porcentaje
+  nunca viaja sin su denominador, y el denominador es el catálogo en alcance: «porcentaje
+  de todos los portales de Chile» no se publica porque nadie tiene ese censo.
 - **Recon por dentro ([#45](https://github.com/ljofreflor/jobbot/issues/45)):** el oneshot mira
   **desde fuera**; la verdad de componentes (ATS, campos de registro, dónde se sube el CV) se
   aprende **entrando**. `companies recon NOMBRE` captura el HTML de la página (fixture o CDP
@@ -613,6 +624,8 @@ uv run jobbot portals list|add|detect
 uv run jobbot portals catalog import data/sources-cl.example.yaml   # dry-run; --apply escribe
 uv run jobbot portals catalog list --ats trabajando   # canales con lo observado
 uv run jobbot portals catalog plan --country CL       # qué explorar / qué revisar (dry-run)
+uv run jobbot portals catalog coverage --country CL   # canales, alcance %, presencia %
+uv run jobbot portals catalog coverage --by sector --json
 uv run jobbot portals form-learn URL --fetch          # qué pide un formulario (solo lee)
 uv run jobbot portals form-learn URL --fixture page.html
 uv run jobbot recruiters discover URL                 # prácticas públicas → candidatas

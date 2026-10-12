@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from jobbot.catalog.coverage import CoverageReport
 from jobbot.catalog.discovery import DiscoveryReport, OutcomeKind
 from jobbot.catalog.models import Channel
 from jobbot.catalog.registry import SourceCatalog
@@ -65,6 +66,65 @@ def render_catalog_list(catalog: SourceCatalog, channels: list[Channel]) -> list
     return lines
 
 
+def render_coverage(report: CoverageReport, *, by: str = "ats", limit: int = 10) -> list[str]:
+    """The indicator: the denominator first, then what JobBot reaches and what is proven."""
+    total = report.total
+    scope = report.country or "any country"
+    lines = [
+        f"Catalog coverage — {scope} · catalog {report.catalog_version} "
+        f"· capability {report.capability.value}",
+        f"  channels        : {total.channels} ({total.employers} employers)",
+        f"  JobBot reach    : {total.reach_pct}% — {total.proven} proven, "
+        f"{total.wired} wired, {total.pending} pending",
+        f"  your presence   : {total.presence_pct}% — {total.present} of {total.channels} "
+        "with local evidence",
+    ]
+    groups = report.by_sector if by == "sector" else report.by_ats
+    heading = "by sector" if by == "sector" else "by platform"
+    lines.append(f"  {heading}:")
+    shown = groups if limit <= 0 else groups[:limit]
+    for group in shown:
+        lines.append(
+            f"    {group.label:<16} {group.channels:>4} channels "
+            f"{group.employers:>4} employers  reach {group.reach_pct:>5}%  "
+            f"presence {group.presence_pct:>5}%"
+        )
+    hidden = len(groups) - len(shown)
+    if hidden:
+        lines.append(f"    … {hidden} more (--limit 0 lists them all)")
+    unlocks = report.unlocks if limit <= 0 else report.unlocks[:3]
+    if unlocks:
+        lines.append("  next unlock (no adapter yet):")
+        for group in unlocks:
+            lines.append(
+                f"    {group.label:<16} would unlock {group.channels} channels "
+                f"({_share(group.channels, total.channels)}% of the catalog), "
+                f"{group.employers} employers"
+            )
+    unknown = report.unidentified
+    if unknown is not None:
+        lines.append(
+            f"  unidentified    : {unknown.channels} channels "
+            f"({_share(unknown.channels, total.channels)}%) have no platform named yet "
+            "— jobbot companies recon"
+        )
+    lines.append(
+        "  Presence counts evidence only: a channel with no receipt is unverified, "
+        "not absent."
+    )
+    return lines
+
+
+def coverage_headline(report: CoverageReport) -> str:
+    """One line for `jobbot status`: the denominator never travels without its percentages."""
+    total = report.total
+    scope = report.country or "catalog"
+    return (
+        f"{scope}: {total.channels} channels · JobBot reach {total.reach_pct}% "
+        f"· your presence {total.presence_pct}% (jobbot portals catalog coverage)"
+    )
+
+
 def render_discovery_plan(report: DiscoveryReport, *, limit: int = 10) -> list[str]:
     """Which sources could be explored, which need review, and why. Creates nothing."""
     lines = [f"Discovery plan — country {report.country or 'any'} (dry run, nothing read)"]
@@ -85,6 +145,10 @@ def render_discovery_plan(report: DiscoveryReport, *, limit: int = 10) -> list[s
             lines.append(f"    … {hidden} more (--limit 0 lists them all)")
     lines.append("  No account was created and no application was sent.")
     return lines
+
+
+def _share(part: int, whole: int) -> float:
+    return round(100.0 * part / whole, 1) if whole else 0.0
 
 
 def _counts(counts: Mapping[str, int]) -> str:
