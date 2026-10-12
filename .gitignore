@@ -7,6 +7,7 @@ data/profile.suggested.yaml
 data/profile.yaml.*
 data/portals.yaml.*
 data/companies.yaml.*
+data/source_catalog.yaml.*
 data/form_knowledge.yaml.*
 data/recruiters.yaml.*
 data/**/*.bak
@@ -18,6 +19,8 @@ data/.jobbot-owner.json
 /sandboxes/
 data/portals.yaml
 data/companies.yaml
+# Imported source catalog: share the researched seed (data/sources-*.example.yaml) instead.
+data/source_catalog.yaml
 # What application forms ask, observed locally. Questions only, but not shared.
 data/form_knowledge.yaml
 data/hard-link-inbox.txt
@@ -33,6 +36,7 @@ data/application_answers.yaml.*
 !data/portals.example.yaml
 !data/companies.example.yaml
 !data/companies-cl.example.yaml
+!data/sources-cl.example.yaml
 
 # Private CV sources (LaTeX/PDF). Real moderncv stays private.
 # Tracked: latex/cv.tex.demo + latex/README.md only.

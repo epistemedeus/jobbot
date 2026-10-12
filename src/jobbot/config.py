@@ -16,6 +16,7 @@ DEFAULT_TEMPLATES = Path("templates")
 DEFAULT_DB = Path("data/jobbot.sqlite")
 DEFAULT_PORTALS = Path("data/portals.yaml")
 DEFAULT_COMPANIES = Path("data/companies.yaml")
+DEFAULT_CATALOG = Path("data/source_catalog.yaml")
 DEFAULT_BROWSER_DATA = Path("browser-data")
 DEFAULT_COUNTRIES: tuple[str, ...] = ("CL",)
 DEFAULT_MAX_AGE_DAYS = 30
@@ -33,6 +34,7 @@ class PathsConfig:
     database: Path = DEFAULT_DB
     portals: Path = DEFAULT_PORTALS
     companies: Path = DEFAULT_COMPANIES
+    catalog: Path = DEFAULT_CATALOG
     browser_data: Path = DEFAULT_BROWSER_DATA
     legacy_cv: Path | None = None
 
@@ -88,6 +90,10 @@ class JobbotConfig:
     @property
     def companies_path(self) -> Path:
         return self._resolve(self.paths.companies)
+
+    @property
+    def catalog_path(self) -> Path:
+        return self._resolve(self.paths.catalog)
 
     @property
     def browser_data_dir(self) -> Path:
@@ -159,6 +165,7 @@ def _load_paths(raw: dict[str, object], *, workspace: str | None) -> PathsConfig
         database=Path(str(data.get("database", DEFAULT_DB))),
         portals=Path(str(data.get("portals", DEFAULT_PORTALS))),
         companies=Path(str(data.get("companies", DEFAULT_COMPANIES))),
+        catalog=Path(str(data.get("catalog", DEFAULT_CATALOG))),
         browser_data=Path(str(data.get("browser_data", DEFAULT_BROWSER_DATA))),
         legacy_cv=Path(str(legacy)) if legacy else None,
     )
