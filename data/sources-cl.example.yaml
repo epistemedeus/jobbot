@@ -1,0 +1,347 @@
+# Chilean source catalog — seed for `jobbot portals catalog import` (public data only).
+#
+#   uv run jobbot portals catalog import data/sources-cl.example.yaml          # dry-run
+#   uv run jobbot portals catalog import data/sources-cl.example.yaml --apply  # writes
+#
+# What this file is: the compact inventory of the 2026-10-12 research into where Chilean
+# employers publish vacancies. Every row is one *observed* channel: an employer or brand,
+# the URL where it was seen, the ATS family the page showed, what kind of surface it is,
+# and what a plain web reader got from it that day.
+#
+# What this file is NOT:
+#   - not a census of Chilean employers (the research queue below is the backlog);
+#   - not proof that a channel has open vacancies today;
+#   - not permission to extract: robots.txt and terms are checked per source, later;
+#   - not a statement that JobBot supports the ATS. `ats` is an observation about the
+#     page, never a capability. Capabilities start `unknown` and are proven one by one.
+#
+# `read` is the state of that single reading, never a verdict about the portal:
+#   fetched              content came back (says nothing about listing completeness)
+#   js_required          the listing renders client-side; plain HTML has no vacancies
+#   no_content           answered, but the reader got no usable content
+#   reader_error         the reader failed (403, 404, timeout…) — revalidate, do not bury
+#   pending_destination  the link is official but its destination was not resolved yet
+#
+# Nothing here is enabled: the importer refuses a seed that tries to.
+catalog_version: "0.1.0"
+country: CL
+researched_at: 2026-10-12
+notes: >-
+  Compact inventory transcribed from the research JSON (schema 0.1.0) attached to the
+  Chilean source-catalog issue. The full JSON keeps per-channel notes and evidence that
+  this summary drops; import it the same way when it lands in the repository.
+
+# The importer compares what it read against these numbers and refuses a silent loss.
+expected:
+  employers: 194
+  channels: 249
+  sectors: 15
+  by_type:
+    listing: 195
+    access: 47
+    cv_inbox: 5
+    job_posting: 2
+  by_read:
+    fetched: 204
+    js_required: 14
+    no_content: 4
+    reader_error: 26
+    pending_destination: 1
+
+channels:
+  # ── Banca, medios de pago y fintech ──────────────────────────────────────────
+  - {employer: "Banco de Chile", sector: banca_fintech, url: "https://www.trabajaenelchile.cl/ofertas", type: listing, ats: unknown, read: fetched}
+  - {employer: "Bci", sector: banca_fintech, url: "https://trabajaenbci.cl/oportunidades-laborales", type: listing, ats: unknown, read: js_required}
+  - {employer: "Bci", sector: banca_fintech, url: "https://bci.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "BancoEstado", sector: banca_fintech, url: "https://bancoestado.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "BancoEstado", sector: banca_fintech, url: "https://bancoestado.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Santander", sector: banca_fintech, url: "https://santander.wd3.myworkdayjobs.com/SantanderCareers", type: listing, ats: workday, read: no_content}
+  - {employer: "Santander", sector: banca_fintech, url: "https://www.santander.com/es/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Scotiabank", sector: banca_fintech, url: "https://www.scotiabank.com/careers/es/carreras.html", type: access, ats: unknown, read: fetched}
+  - {employer: "Scotiabank", sector: banca_fintech, url: "https://jobs.scotiabank.com/job/Santiago-de-Chile-Asesora-de-Inversiones-%28vacantes-futuras%29-RM/606695017/", type: job_posting, ats: unknown, read: fetched}
+  - {employer: "Itaú Chile", sector: banca_fintech, url: "https://itau.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "BICE", sector: banca_fintech, url: "https://www.trabajaenbice.cl/", type: access, ats: unknown, read: reader_error}
+  - {employer: "BICE", sector: banca_fintech, url: "https://bice.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Banco Internacional", sector: banca_fintech, url: "https://bancointernacional.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Transbank", sector: banca_fintech, url: "https://transbank.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Tenpo", sector: banca_fintech, url: "https://tenpo.teamtailor.com/jobs", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Fintual", sector: banca_fintech, url: "https://jobs.lever.co/fintual", type: listing, ats: lever, read: fetched}
+  - {employer: "Xepelin", sector: banca_fintech, url: "https://jobs.lever.co/xepelin/", type: listing, ats: lever, read: fetched}
+  - {employer: "Xepelin", sector: banca_fintech, url: "https://xepelin.com/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Fintoc", sector: banca_fintech, url: "https://www.fintoc.com/careers", type: access, ats: unknown, read: fetched}
+  - {employer: "Fintoc", sector: banca_fintech, url: "https://future.fintoc.com/jobs", type: access, ats: unknown, read: reader_error}
+  - {employer: "BancoEstado Cobranzas", sector: banca_fintech, url: "https://jobs.airavirtual.com/be_cobranza", type: listing, ats: aira, read: fetched}
+  - {employer: "BancoEstado Microempresas", sector: banca_fintech, url: "https://jobs.airavirtual.com/be_microempresas_sa", type: listing, ats: aira, read: fetched}
+  - {employer: "BancoEstado Express", sector: banca_fintech, url: "https://jobs.airavirtual.com/be_centro_de_servicios_sa", type: listing, ats: aira, read: fetched}
+  - {employer: "BancoEstado CajaVecina", sector: banca_fintech, url: "https://jobs.airavirtual.com/be_cajavecina", type: listing, ats: aira, read: fetched}
+  - {employer: "Compraquí", sector: banca_fintech, url: "https://jobs.airavirtual.com/red_global_sa", type: listing, ats: aira, read: fetched}
+  - {employer: "Cencosud Scotiabank", sector: banca_fintech, url: "https://jobs.airavirtual.com/cencosud_scotiabank", type: listing, ats: aira, read: fetched}
+
+  # ── Seguros, pensiones e inversiones ─────────────────────────────────────────
+  - {employer: "BCI Seguros", sector: seguros_pensiones, url: "https://bciseguros.trabajando.cl/", type: listing, ats: trabajando, read: reader_error}
+  - {employer: "HDI Seguros", sector: seguros_pensiones, url: "https://hdiseguros.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "MetLife Chile", sector: seguros_pensiones, url: "https://w3.metlife.cl/sobre-metlife/trabaja-en-metlife/", type: access, ats: unknown, read: fetched}
+  - {employer: "MetLife Chile", sector: seguros_pensiones, url: "https://metlife.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Principal Chile", sector: seguros_pensiones, url: "https://www.principal.cl/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Principal Chile", sector: seguros_pensiones, url: "https://principal.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Principal Chile", sector: seguros_pensiones, url: "https://careers.principal.com/cl/jobs?lang=es-MX", source: "https://www.principal.cl/trabaja-con-nosotros", type: listing, ats: unknown, read: reader_error}
+  - {employer: "BICE Vida", sector: seguros_pensiones, url: "https://www.bicevida.cl/conocenos/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "SURA", sector: seguros_pensiones, url: "https://www.sura.com/jobsite-regional-de-sura-bienvenido-a-nuestro-equipo/", type: access, ats: unknown, read: fetched}
+  - {employer: "Mutual de Seguros", sector: seguros_pensiones, url: "https://mutualdeseguros.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "BancoEstado Corredora de Seguros", sector: seguros_pensiones, url: "https://jobs.airavirtual.com/be_corredora_de_seguros_sa", type: listing, ats: aira, read: fetched}
+  - {employer: "AFP Habitat", sector: seguros_pensiones, url: "https://afphabitatcl.hiringroom.com/portal", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "AFP Habitat", sector: seguros_pensiones, url: "https://habitat.pandape.computrabajo.com/", type: listing, ats: pandape, read: js_required}
+  - {employer: "AFP Cuprum", sector: seguros_pensiones, url: "https://trabajaencuprum.cl/", type: access, ats: unknown, read: fetched}
+  - {employer: "AFP Cuprum", sector: seguros_pensiones, url: "https://careers.principal.com/cuprum/jobs", type: listing, ats: unknown, read: reader_error}
+  - {employer: "AFP PlanVital", sector: seguros_pensiones, url: "https://jobs.airavirtual.com/afp_planvital", type: listing, ats: aira, read: fetched}
+
+  # ── Retail, comercio y farmacias ─────────────────────────────────────────────
+  - {employer: "Falabella", sector: retail_comercio, url: "https://muevete.falabella.com/explorar/chile", type: listing, ats: unknown, read: js_required}
+  - {employer: "Falabella", sector: retail_comercio, url: "https://jobs.airavirtual.com/falabella_corporativo", type: listing, ats: aira, read: fetched}
+  - {employer: "Walmart Chile", sector: retail_comercio, url: "https://postulawalmartchile.cl/vacantes", type: listing, ats: unknown, read: fetched}
+  - {employer: "Walmart Chile", sector: retail_comercio, url: "https://walmart.trabajando.cl/", type: listing, ats: trabajando, read: reader_error}
+  - {employer: "Walmart Chile", sector: retail_comercio, url: "https://jobs.airavirtual.com/walmart", type: listing, ats: aira, read: fetched}
+  - {employer: "Cencosud", sector: retail_comercio, url: "https://empleos.cencosud.com/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Cencosud", sector: retail_comercio, url: "https://tiendas.empleos.cencosud.com/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Cencosud", sector: retail_comercio, url: "https://cencosud.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Cencosud", sector: retail_comercio, url: "https://cencosud.csod.com/ux/ats/careersite/5/home?c=cencosud", source: "https://empleos.cencosud.com/", type: listing, ats: cornerstone, read: no_content}
+  - {employer: "Ripley Chile", sector: retail_comercio, url: "https://ripleychile.pandape.computrabajo.com/Vacancies", type: listing, ats: pandape, read: js_required}
+  - {employer: "SMU", sector: retail_comercio, url: "https://smu.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Tricot", sector: retail_comercio, url: "https://www.tricot.cl/trabaja.html", type: cv_inbox, ats: unknown, read: fetched}
+  - {employer: "Forus", sector: retail_comercio, url: "https://jobs.airavirtual.com/forus", type: listing, ats: aira, read: reader_error}
+  - {employer: "Colgram", sector: retail_comercio, url: "https://jobs.airavirtual.com/colgram", type: listing, ats: aira, read: reader_error}
+  - {employer: "IKEA Chile, Colombia y Perú", sector: retail_comercio, url: "https://jobs.airavirtual.com/ikea_chile", type: listing, ats: aira, read: reader_error}
+  - {employer: "TOP Underwear", sector: retail_comercio, url: "https://topwear.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Head Chile", sector: retail_comercio, url: "https://maletaschile.hiringroom.com/jobs", source: "https://maletaschile.hiringroom.com/jobs?source=linkedin", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Doite", sector: retail_comercio, url: "https://doite.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "MacOnline", sector: retail_comercio, url: "https://jobs.airavirtual.com/maconline", type: listing, ats: aira, read: fetched}
+  - {employer: "Empresas SB / Salcobrand", sector: retail_comercio, url: "https://empresassb.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "DBS", sector: retail_comercio, url: "https://empresasdbs.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Cruz Verde Chile", sector: retail_comercio, url: "https://www.tufuturoencruzverde.cl/registro.html", type: cv_inbox, ats: unknown, read: fetched}
+  - {employer: "Grupo Axo", sector: retail_comercio, url: "https://grupoaxo.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "IMEX", sector: retail_comercio, url: "https://jobs.airavirtual.com/imex", type: listing, ats: aira, read: fetched}
+  - {employer: "Imega Ventus", sector: retail_comercio, url: "https://jobs.airavirtual.com/imega_ventus", type: listing, ats: aira, read: fetched}
+
+  # ── Tecnología, software y telecomunicaciones ────────────────────────────────
+  - {employer: "Mercado Libre", sector: tecnologia_telecom, url: "https://career.mercadolibre.com/es", type: listing, ats: unknown, read: reader_error}
+  - {employer: "Mercado Libre", sector: tecnologia_telecom, url: "https://careers-meli.mercadolibre.com/pt/home?country=Chile", type: listing, ats: unknown, read: reader_error}
+  - {employer: "Entel", sector: tecnologia_telecom, url: "https://jobs.airavirtual.com/entel", type: listing, ats: aira, read: fetched}
+  - {employer: "Entel", sector: tecnologia_telecom, url: "https://trabajaenentel.com/", type: access, ats: unknown, read: fetched}
+  - {employer: "Entel", sector: tecnologia_telecom, url: "https://entel.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Gtd", sector: tecnologia_telecom, url: "https://grupogtd.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "WOM", sector: tecnologia_telecom, url: "https://wom.trabajando.cl/", source: "https://sobrenosotros.wom.cl/", type: listing, ats: trabajando, read: reader_error}
+  - {employer: "Mundo", sector: tecnologia_telecom, url: "https://www.tumundo.cl/trabaja-en-mundo/", type: listing, ats: unknown, read: fetched}
+  - {employer: "SONDA", sector: tecnologia_telecom, url: "https://carrera.sonda.com/go/", type: listing, ats: unknown, read: fetched}
+  - {employer: "SONDA", sector: tecnologia_telecom, url: "https://www.sonda.com/carreras", type: access, ats: unknown, read: fetched}
+  - {employer: "Kibernum / Workib", sector: tecnologia_telecom, url: "https://www.workibchile.com/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Kibernum / Workib", sector: tecnologia_telecom, url: "https://www.workib.cl/", type: listing, ats: unknown, read: reader_error}
+  - {employer: "NTT DATA", sector: tecnologia_telecom, url: "https://careers.emeal.nttdata.com/s/jobs?langua=&language=es", type: listing, ats: unknown, read: reader_error}
+  - {employer: "NTT DATA", sector: tecnologia_telecom, url: "https://careers.nttdata.com/es/es", type: access, ats: unknown, read: fetched}
+  - {employer: "Accenture", sector: tecnologia_telecom, url: "https://www.accenture.com/cl-es/careers/jobsearch", type: listing, ats: unknown, read: fetched}
+  - {employer: "Thoughtworks", sector: tecnologia_telecom, url: "https://www.thoughtworks.com/es-cl/careers/jobs", type: listing, ats: unknown, read: fetched}
+  - {employer: "Tata Consultancy Services Chile", sector: tecnologia_telecom, url: "https://tatachile.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Nubox", sector: tecnologia_telecom, url: "https://nubox.teamtailor.com/jobs", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Betterfly", sector: tecnologia_telecom, url: "https://careers.betterfly.com/locations/chile", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Betterfly", sector: tecnologia_telecom, url: "https://careers.betterfly.com/jobs", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Buk", sector: tecnologia_telecom, url: "https://www.buk.cl/quienes-somos", type: access, ats: unknown, read: fetched}
+  - {employer: "Buk", sector: tecnologia_telecom, url: "https://www.takealuk.com/empleos-buk?countries%5B%5D=Chile", source: "https://www.buk.cl/quienes-somos", type: listing, ats: luk, read: pending_destination}
+  - {employer: "AgendaPro", sector: tecnologia_telecom, url: "https://agendapro.com/es/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Amazon / AWS", sector: tecnologia_telecom, url: "https://www.amazon.jobs/en/search?country=CHL", type: listing, ats: unknown, read: fetched}
+  - {employer: "Google", sector: tecnologia_telecom, url: "https://www.google.com/about/careers/applications/jobs/results", type: listing, ats: unknown, read: fetched}
+  - {employer: "Microsoft", sector: tecnologia_telecom, url: "https://careers.microsoft.com/v2/global/en/home.html", type: listing, ats: unknown, read: fetched}
+  - {employer: "IBM", sector: tecnologia_telecom, url: "https://www.ibm.com/careers/locations", source: "https://www.ibm.com/careers/locations?source=External+Career+Site", type: access, ats: unknown, read: fetched}
+  - {employer: "Oracle", sector: tecnologia_telecom, url: "https://www.oracle.com/latam/careers/", type: access, ats: unknown, read: fetched}
+  - {employer: "SAP", sector: tecnologia_telecom, url: "https://jobs.sap.com/en/jobs/?location=Santiago", type: listing, ats: unknown, read: reader_error}
+  - {employer: "SAP", sector: tecnologia_telecom, url: "https://careers.sap.com/go/SAP-Jobs-in-Chile/913401/?q=&sortColumn=sort_location&sortDirection=desc", type: listing, ats: unknown, read: fetched}
+  - {employer: "Globant", sector: tecnologia_telecom, url: "https://career.globant.com/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Uber", sector: tecnologia_telecom, url: "https://jobs.uber.com/en/locations/santiago/", source: "https://jobs.uber.com/en/locations/santiago/?id=1%2A110", type: listing, ats: unknown, read: fetched}
+  - {employer: "Encuadrado", sector: tecnologia_telecom, url: "https://encuadrado.na.teamtailor.com/", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Konexa", sector: tecnologia_telecom, url: "https://jobs.konexa.cl/", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Verity Consulting", sector: tecnologia_telecom, url: "https://jobs.airavirtual.com/verity", type: listing, ats: aira, read: fetched}
+  - {employer: "Vigatec", sector: tecnologia_telecom, url: "https://jobs.airavirtual.com/vigatec", type: listing, ats: aira, read: fetched}
+  - {employer: "Aira (equipo de producto)", sector: tecnologia_telecom, url: "https://jobs.airavirtual.com/aira_producto", type: listing, ats: aira, read: fetched}
+  - {employer: "Coderio", sector: tecnologia_telecom, url: "https://jobs.lever.co/coderio", type: listing, ats: lever, read: fetched}
+
+  # ── Consultoría y servicios profesionales ────────────────────────────────────
+  - {employer: "Deloitte", sector: consultoria, url: "https://deloitte.trabajando.cl/", source: "https://deloitte.trabajando.cl/?icid=top_job-search", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Deloitte", sector: consultoria, url: "https://www.deloitte.com/cl/es/careers.html", type: access, ats: unknown, read: fetched}
+  - {employer: "EY Chile", sector: consultoria, url: "https://eychile.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "EY Chile", sector: consultoria, url: "https://www.ey.com/es_cl/careers/job-search", type: access, ats: unknown, read: fetched}
+  - {employer: "PwC Chile", sector: consultoria, url: "https://pwc.hiringroom.com/portal", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "KPMG Chile", sector: consultoria, url: "https://kpmgchile.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "DICTUC", sector: consultoria, url: "https://dictuc.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+
+  # ── Minería ──────────────────────────────────────────────────────────────────
+  - {employer: "Codelco", sector: mineria, url: "https://empleos.codelco.cl/content/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Codelco", sector: mineria, url: "https://www.codelco.com/trabaja-en-codelco", type: access, ats: unknown, read: fetched}
+  - {employer: "BHP", sector: mineria, url: "https://www.bhp.com/es/careers/global-careers/careers-in-chile", type: access, ats: unknown, read: fetched}
+  - {employer: "BHP", sector: mineria, url: "https://careers.bhp.com/lp/?locale=es_ES", type: listing, ats: unknown, read: fetched}
+  - {employer: "Antofagasta Minerals", sector: mineria, url: "https://ww2.aminerals.cl/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Antofagasta Minerals", sector: mineria, url: "https://career8.successfactors.com/career?career_ns=job_listing_summary&company=AMSAP&navBarLevel=JOB_SEARCH", source: "https://ww2.aminerals.cl/trabaja-con-nosotros", type: listing, ats: successfactors, read: fetched}
+  - {employer: "Collahuasi", sector: mineria, url: "https://www.collahuasi.cl/trabaja-con-nosotros/ofertas-laborales/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Anglo American", sector: mineria, url: "https://chile.angloamerican.com/es-es/empleo/opportunidades-laborales", type: access, ats: unknown, read: fetched}
+  - {employer: "SQM", sector: mineria, url: "https://www.trabajaensqm.cl/", type: listing, ats: unknown, read: reader_error}
+  - {employer: "SQM", sector: mineria, url: "https://www.trabajaensqm.com/", type: listing, ats: unknown, read: fetched}
+  - {employer: "SQM", sector: mineria, url: "https://sqm.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Teck", sector: mineria, url: "https://jobs.teck.com/viewalljobs/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Teck", sector: mineria, url: "https://www.teck.com/carreras/trabajar-en-teck/", type: access, ats: unknown, read: fetched}
+  - {employer: "Kinross", sector: mineria, url: "https://jobs.kinross.com/", source: "https://jobs.kinross.com/?trk=public_post_comment-text", type: listing, ats: successfactors, read: fetched}
+  - {employer: "Lundin Mining", sector: mineria, url: "https://es.lundinmining.com/careers/current-opportunities", type: access, ats: unknown, read: fetched}
+  - {employer: "Lundin Mining", sector: mineria, url: "https://lundinmining.trabajando.cl/", type: listing, ats: trabajando, read: reader_error}
+  - {employer: "Sierra Gorda SCM", sector: mineria, url: "https://jobs.airavirtual.com/sierra_gorda", type: listing, ats: aira, read: fetched}
+  - {employer: "Enaex", sector: mineria, url: "https://jobs.airavirtual.com/enaex/1000", type: listing, ats: aira, read: fetched}
+
+  # ── Industria, forestal y maquinaria ─────────────────────────────────────────
+  - {employer: "Komatsu Cummins", sector: industria_forestal, url: "https://komatsu.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Finning", sector: industria_forestal, url: "https://empleos.finning.com/jobs", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Finning", sector: industria_forestal, url: "https://finning.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "CMPC", sector: industria_forestal, url: "https://www.cmpc.com/trabaja-con-nosotros/", type: access, ats: unknown, read: fetched}
+  - {employer: "CMPC", sector: industria_forestal, url: "https://cmpc.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "ARAUCO", sector: industria_forestal, url: "https://jobs.arauco.com/search/?locale=es_ES&q=&sortColumn=sort_title&sortDirection=desc", type: listing, ats: unknown, read: fetched}
+  - {employer: "Softys", sector: industria_forestal, url: "https://softys.pandape.computrabajo.com/Vacancies", type: listing, ats: pandape, read: js_required}
+  - {employer: "Melón", sector: industria_forestal, url: "https://melon.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Goodyear Chile", sector: industria_forestal, url: "https://jobs.airavirtual.com/goodyear", type: listing, ats: aira, read: fetched}
+
+  # ── Energía, agua y servicios básicos ────────────────────────────────────────
+  - {employer: "Copec", sector: energia_agua, url: "https://ww2.copec.cl/nuestra-empresa/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Copec", sector: energia_agua, url: "https://copec.hiringroom.com/jobs", source: "https://ww2.copec.cl/nuestra-empresa/trabaja-con-nosotros", type: listing, ats: hiringroom, read: reader_error}
+  - {employer: "ENAP", sector: energia_agua, url: "https://enap.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "ENEX", sector: energia_agua, url: "https://enex.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Enel Chile", sector: energia_agua, url: "https://www.enel.cl/es/conoce-enel/trabaja-con-nosotros/oportunidades-laborales-practicas-y-memoristas.html", type: access, ats: unknown, read: fetched}
+  - {employer: "Colbún", sector: energia_agua, url: "https://www.colbun.cl/corporativo/trabajadores", type: access, ats: unknown, read: fetched}
+  - {employer: "Colbún", sector: energia_agua, url: "https://www.trabajando.cl/trabajos-colbun-sa-1817", type: listing, ats: trabajando, read: fetched}
+  - {employer: "AES Andes", sector: energia_agua, url: "https://www.aesandes.com/es/careers", type: access, ats: unknown, read: fetched}
+  - {employer: "CGE", sector: energia_agua, url: "https://cge.trabajando.cl/", source: "https://cge.trabajando.cl/?trk=public_post-text", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Transelec", sector: energia_agua, url: "https://www.transelec.cl/trabaja-con-nosotros/", type: access, ats: unknown, read: fetched}
+  - {employer: "Transelec", sector: energia_agua, url: "https://transelec.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Equans", sector: energia_agua, url: "https://equans.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Aguas Andinas", sector: energia_agua, url: "https://jobs.airavirtual.com/aguas_andinas", type: listing, ats: aira, read: reader_error}
+  - {employer: "EcoRiles", sector: energia_agua, url: "https://jobs.airavirtual.com/ecoriles", type: listing, ats: aira, read: reader_error}
+  - {employer: "Hidrogística", sector: energia_agua, url: "https://jobs.airavirtual.com/hidrogistica", type: listing, ats: aira, read: fetched}
+  - {employer: "Análisis Ambientales", sector: energia_agua, url: "https://jobs.airavirtual.com/analisis_ambientales", type: listing, ats: aira, read: fetched}
+  - {employer: "Essbio", sector: energia_agua, url: "https://essbio.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Essbio", sector: energia_agua, url: "https://www.essbio.cl/nosotros/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Esval y Aguas del Valle", sector: energia_agua, url: "https://esval.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "GPI", sector: energia_agua, url: "https://jobs.airavirtual.com/gpi", type: listing, ats: aira, read: fetched}
+
+  # ── Alimentos, bebidas, agroindustria y acuicultura ──────────────────────────
+  - {employer: "Agrosuper", sector: alimentos_bebidas, url: "https://www.agrosuper.cl/personas/", type: access, ats: unknown, read: fetched}
+  - {employer: "Agrosuper", sector: alimentos_bebidas, url: "https://trabajos.agrosuper.cl/content/Conocenos/?locale=es_ES", type: listing, ats: unknown, read: fetched}
+  - {employer: "Carozzi", sector: alimentos_bebidas, url: "https://empleos.carozzicorp.com/jobs", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "CCU", sector: alimentos_bebidas, url: "https://www.trabajaenccu.cl/", type: listing, ats: unknown, read: fetched}
+  - {employer: "Nestlé Chile", sector: alimentos_bebidas, url: "https://www.nestle.cl/trabajos/buscar-trabajos", type: listing, ats: unknown, read: js_required}
+  - {employer: "Nestlé Chile", sector: alimentos_bebidas, url: "https://nestle.pandape.computrabajo.com/", type: listing, ats: pandape, read: js_required}
+  - {employer: "Soprole", sector: alimentos_bebidas, url: "https://soprole.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Watt's", sector: alimentos_bebidas, url: "https://watts.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Colun", sector: alimentos_bebidas, url: "https://jobs.airavirtual.com/colun_chile", type: listing, ats: aira, read: fetched}
+  - {employer: "NotCo", sector: alimentos_bebidas, url: "https://notco.com/cl/sobre/notco-squad", type: access, ats: unknown, read: fetched}
+  - {employer: "Salmones Camanchaca", sector: alimentos_bebidas, url: "https://camanchaca.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "AquaChile", sector: alimentos_bebidas, url: "https://trabajos.aquachile.com/", type: listing, ats: successfactors, read: fetched}
+  - {employer: "AquaChile", sector: alimentos_bebidas, url: "https://aquachile.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Copefrut", sector: alimentos_bebidas, url: "https://copefrut.hiringroom.com/portal", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Copefrut", sector: alimentos_bebidas, url: "https://copefrut.com/trabaja-con-nosotros/", type: access, ats: unknown, read: fetched}
+  - {employer: "Del Monte Fresh Produce Chile", sector: alimentos_bebidas, url: "https://delmonte.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Unifood", sector: alimentos_bebidas, url: "https://unifood.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+
+  # ── Salud y servicios relacionados ───────────────────────────────────────────
+  - {employer: "Consalud", sector: salud, url: "https://consalud.trabajando.cl/", type: listing, ats: trabajando, read: reader_error}
+  - {employer: "Bupa Chile", sector: salud, url: "https://bupa.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Bupa Lab", sector: salud, url: "https://www.bupalab.cl/trabaja-con-nosotros", type: cv_inbox, ats: unknown, read: fetched}
+  - {employer: "RedSalud", sector: salud, url: "https://redsalud.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "UC CHRISTUS Servicios Ambulatorios", sector: salud, url: "https://red-salud-uc-christus.pandape.computrabajo.com/", type: listing, ats: pandape, read: js_required}
+  - {employer: "Clínica Alemana de Santiago", sector: salud, url: "https://trabajos.alemana.cl/", type: listing, ats: unknown, read: reader_error}
+  - {employer: "MEDS", sector: salud, url: "https://meds.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "ACHS", sector: salud, url: "https://www.achs.cl/nosotros/trabaja-en-achs", type: access, ats: successfactors, read: fetched}
+  - {employer: "ACHS", sector: salud, url: "https://tensachs.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "ACHS Servicios", sector: salud, url: "https://www.esachs.cl/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Mutual de Seguridad", sector: salud, url: "https://mutual.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Mutual de Seguridad Capacitación", sector: salud, url: "https://mcap.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Banmédica", sector: salud, url: "https://jobs.airavirtual.com/banmedica", type: listing, ats: aira, read: fetched}
+  - {employer: "Sercomed", sector: salud, url: "https://jobs.airavirtual.com/sercomed", type: listing, ats: aira, read: fetched}
+  - {employer: "Instituto Sanitas", sector: salud, url: "https://sanitas.cl/trabaja-con-nosotros/", type: cv_inbox, ats: unknown, read: fetched}
+
+  # ── Transporte, logística y puertos ──────────────────────────────────────────
+  - {employer: "LATAM Airlines", sector: transporte_logistica, url: "https://carreras.latam.com/", type: listing, ats: unknown, read: js_required}
+  - {employer: "SKY Airline", sector: transporte_logistica, url: "https://www.skyairline.com/en/chile/skyers/empleos/ofertas/5106365/Soporte-Informatico.html", type: job_posting, ats: unknown, read: js_required}
+  - {employer: "JetSMART", sector: transporte_logistica, url: "https://recruitment.jetsmart.net/", type: listing, ats: successfactors, read: fetched}
+  - {employer: "Chilexpress", sector: transporte_logistica, url: "https://chilexpress.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Chilexpress", sector: transporte_logistica, url: "https://www.chilexpress.cl/trabaja-con-nosotros-envios-paquetes-express", type: access, ats: unknown, read: fetched}
+  - {employer: "Blue Express", sector: transporte_logistica, url: "https://blueexpress.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Metro de Santiago", sector: transporte_logistica, url: "https://metro.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "EFE", sector: transporte_logistica, url: "https://efetalentos.cl/", type: listing, ats: unknown, read: reader_error}
+  - {employer: "EFE", sector: transporte_logistica, url: "https://efe.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "CorreosChile", sector: transporte_logistica, url: "https://correos.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Ultramar", sector: transporte_logistica, url: "https://ultramar.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "SAAM Logistics", sector: transporte_logistica, url: "https://saamlogistics.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Sitrans", sector: transporte_logistica, url: "https://sitrans.pandape.computrabajo.com/", type: listing, ats: pandape, read: js_required}
+  - {employer: "DHL Supply Chain", sector: transporte_logistica, url: "https://www.dhl.com/cl-es/home/cadena-de-suministro/quienes-somos/trabaje-con-nosotros-en-dhl-supply-chain.html", type: access, ats: unknown, read: fetched}
+  - {employer: "Maersk", sector: transporte_logistica, url: "https://maersk.wd3.myworkdayjobs.com/Maersk_Careers", type: listing, ats: workday, read: no_content}
+  - {employer: "Maersk", sector: transporte_logistica, url: "https://www.containeroperators.cl/ischile/es/trabaje-con-nosotros", type: access, ats: unknown, read: fetched}
+  - {employer: "Antofagasta Terminal Internacional", sector: transporte_logistica, url: "https://jobs.airavirtual.com/antofagasta_terminal_internacional", type: listing, ats: aira, read: fetched}
+  - {employer: "San Antonio Terminal Internacional", sector: transporte_logistica, url: "https://jobs.airavirtual.com/san_antonio_terminal_internacional", type: listing, ats: aira, read: fetched}
+  - {employer: "Hanseatic Global Terminals Latam", sector: transporte_logistica, url: "https://jobs.airavirtual.com/grupo_hanseatic_global_terminals_latam", type: listing, ats: aira, read: fetched}
+  - {employer: "Avis Chile", sector: transporte_logistica, url: "https://www.avis.cl/sobre-avis/trabaja-con-nosotros", type: access, ats: unknown, read: fetched}
+
+  # ── Construcción e infraestructura ───────────────────────────────────────────
+  - {employer: "VíasChile", sector: construccion, url: "https://www.viaschile.cl/trabaja-con-nosotros/", type: access, ats: unknown, read: reader_error}
+  - {employer: "SalfaCorp", sector: construccion, url: "https://salfacorp.com/trabaja-con-nosotros/", type: access, ats: unknown, read: reader_error}
+  - {employer: "Echeverría Izquierdo", sector: construccion, url: "https://jobs.airavirtual.com/echeverria_izquierdo", type: listing, ats: aira, read: fetched}
+  - {employer: "Ingeniería y Construcción Sigdo Koppers", sector: construccion, url: "https://icsk.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Sacyr", sector: construccion, url: "https://sacyrpeople.sacyr.com/jobs?country=Chile&query=&split_view=true", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "Besalco Montajes", sector: construccion, url: "https://www.besalcomontajes.cl/trabaje-con-nosotros.html", type: cv_inbox, ats: unknown, read: fetched}
+  - {employer: "Puga Mujica Asociados", sector: construccion, url: "https://jobs.airavirtual.com/puga_mujica_asociados_s_a", type: listing, ats: aira, read: fetched}
+
+  # ── Servicios, turismo y entretenimiento ─────────────────────────────────────
+  - {employer: "Sodexo Chile", sector: servicios_turismo, url: "https://sodexochile.pandape.computrabajo.com/", type: listing, ats: pandape, read: js_required}
+  - {employer: "Sodexo Chile", sector: servicios_turismo, url: "https://sodexo.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Aramark Chile", sector: servicios_turismo, url: "https://aramarkcareers.com/Latin-America/content/Chile-Careers-es_MX/?locale=es_MX", type: listing, ats: unknown, read: fetched}
+  - {employer: "Aramark Chile", sector: servicios_turismo, url: "https://aramark.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Aramark Chile", sector: servicios_turismo, url: "https://aramark.pandape.computrabajo.com/", type: listing, ats: pandape, read: js_required}
+  - {employer: "Limchile", sector: servicios_turismo, url: "https://limchile.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Atento Chile", sector: servicios_turismo, url: "https://atento.com/es/trabaja-con-nosotros-chile", type: access, ats: unknown, read: fetched}
+  - {employer: "Enjoy", sector: servicios_turismo, url: "https://jobs.airavirtual.com/enjoy", type: listing, ats: aira, read: fetched}
+  - {employer: "Diversur", sector: servicios_turismo, url: "https://jobs.airavirtual.com/diversur", type: listing, ats: aira, read: fetched}
+  - {employer: "Happyland", sector: servicios_turismo, url: "https://jobs.airavirtual.com/happyland", type: listing, ats: aira, read: fetched}
+  - {employer: "Despegar", sector: servicios_turismo, url: "https://jobs.lever.co/despegar?location=Santiago", source: "https://jobs.lever.co/despegar?location=Santiago&trk=test", type: listing, ats: lever, read: fetched}
+
+  # ── Educación, fundaciones y otras organizaciones ────────────────────────────
+  - {employer: "Webclass", sector: educacion_organizaciones, url: "https://webclass.pandape.computrabajo.com/", type: listing, ats: pandape, read: js_required}
+  - {employer: "Santillana", sector: educacion_organizaciones, url: "https://santillana.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "ESE Business School", sector: educacion_organizaciones, url: "https://jobs.airavirtual.com/ese_business_school", type: listing, ats: aira, read: fetched}
+  - {employer: "Fundación Integra", sector: educacion_organizaciones, url: "https://jobs.airavirtual.com/casa_central_integra", type: listing, ats: aira, read: fetched}
+  - {employer: "Fundación Integra", sector: educacion_organizaciones, url: "https://jobs.airavirtual.com/oficinas_regionales_integra", type: listing, ats: aira, read: fetched}
+  - {employer: "Fundación Integra", sector: educacion_organizaciones, url: "https://integra.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "Fundación Chile", sector: educacion_organizaciones, url: "https://fch.cl/nosotros/trabaja-con-nosotros/", type: access, ats: unknown, read: fetched}
+  - {employer: "Greenpeace Chile", sector: educacion_organizaciones, url: "https://www.greenpeace.org/chile/trabaja-con-nosotros/", type: access, ats: unknown, read: fetched}
+  - {employer: "SCD", sector: educacion_organizaciones, url: "https://scd.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+
+  # ── Reclutamiento, selección y outsourcing ───────────────────────────────────
+  # relation: intermediary — the employer behind each vacancy is a client, never this brand.
+  - {employer: "ATCOM", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://empleo.atcom.cl/", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "CDO HR", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://app.albatros.cdohr.cl/", type: listing, ats: unknown, read: no_content}
+  - {employer: "Adecco Chile", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://adeccochile.hiringroom.com/jobs", source: "https://adeccochile.hiringroom.com/jobs?source=linkedin", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Gi Group Chile", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://gigroupcl.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Laborum Selecta", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://laborumselecta.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Finden Talent", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://findentalent.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "People4ward", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://people4ward.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "ADGROUP", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://adgroup.hiringroom.com/jobs", type: listing, ats: hiringroom, read: fetched}
+  - {employer: "Resource & Recourse Chile", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://rrchile.trabajando.cl/", type: listing, ats: trabajando, read: fetched}
+  - {employer: "HRGROWIN", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://hrgrowin.na.teamtailor.com/jobs", type: listing, ats: teamtailor, read: fetched}
+  - {employer: "ACT", sector: reclutamiento_outsourcing, relation: intermediary, url: "https://actsa.trabajando.cl/", type: listing, ats: trabajando, read: reader_error}
+
+# Brands with no verified channel yet: research hypotheses, never portals. The importer
+# keeps them out of the catalog — they exist here so the next pass knows where to look.
+research_queue:
+  banca_fintech: [Banco Security, Banco Consorcio, Banco Ripley, Banco Falabella, Coopeuch, Tanner, BTG Pactual Chile, LarrainVial, Banchile, MACHBANK, Klap, Getnet, Global66, Mercado Pago, Tapp]
+  seguros_pensiones: [Consorcio Seguros, Zurich Chile, Chubb Chile, MAPFRE Chile, HDI filial vida, AFP Capital, AFP Modelo, AFP Provida, AFP Uno, AFC Chile, Caja Los Andes, La Araucana, Los Héroes, Caja 18]
+  retail_comercio: [Hites, La Polar / ABC, Fashion's Park, Corona, Empresas La Polar, Lippi, Lápiz López, Comercial D&S, Construmart, Cugat, Prisa, Dimerc, Casaideas, Rosen, CIC, Farmacias Ahumada, Maicao]
+  tecnologia_telecom: [ClaroVTR, Movistar / Tigo Chile, Adexus, SII Group Chile, TINET, Stefanini, Seidor, TIVIT, Indra / Minsait, NTT Ltd, Apply Digital, Acid Labs, Baufest, Nisum, Rappi, PedidosYa, Cabify, Colektia, Defontana, Rankmi, Zubale, Scanntech Chile]
+  mineria: [Minera El Abra / Freeport, Caserones, Minera Los Pelambres, Minera Centinela, Minera Antucoya, Minera Zaldívar, ENAMI, Candelaria, CMP / CAP, Pucobre, Minera San Gerónimo, Gold Fields Chile, Albemarle, Minera Valle Central, Austin Powder]
+  energia_agua: [Grupo Saesa, ENGIE Chile, ISA Interchile, Chilquinta, Aguas Nuevas, Aguas Antofagasta, Aguas Araucanía, Nuevosur, Essal, Lipigas, Gasco, Abastible, Metrogas, Transelec filiales, Acciona Energía Chile]
+  alimentos_bebidas: [Blumar, Mowi Chile, Cermaq Chile, Ventisqueros, Australis Seafoods, Multi X, Salmones Aysén, Camanchaca Pesca, Hortifrut, Garcés Fruit, Ranco Cherries, Dole Chile, Frusan, David del Curto, Iansa, BredenMaster, Ideal / Bimbo, Coca-Cola Andina, Coca-Cola Embonor, Coca-Cola Chile, CCU filiales, Concha y Toro, Viña San Pedro Tarapacá, Viña Santa Rita, Viña Cono Sur, PF Alimentos, Ariztía, Sopraval, Unilever Chile, Procter & Gamble Chile]
+  salud: [Clínica Las Condes, Clínica Santa María, Clínica Dávila, Clínica Indisa, Clínica Universidad de los Andes, Clínica Bupa Reñaca, Sanatorio Alemán, Cruz Blanca, Nueva Masvida, Colmena, Esencial, Help, Laboratorio Chile / Teva, Saval, Recalcine / Abbott, Pfizer Chile, Roche Chile, Johnson & Johnson Chile, Novartis Chile, Boehringer Ingelheim Chile]
+  transporte_logistica: [Dachser Chile, Kuehne+Nagel Chile, DSV Chile, FedEx Chile, Starken, Pullman Bus, Turbus, Copec Voltex, Kaufmann, Salfa automotriz, Inchcape, Derco, Tattersall, SK Rental, Loginsa, Agunsa, TPS Valparaíso, Puerto Ventanas, DP World Chile, Puerto San Antonio, Puerto Valparaíso, Nuevo Pudahuel]
+  construccion: [Acciona Chile, Ferrovial Chile, OHLA Chile, JRI Ingeniería, R&Q Ingeniería, DRS, IDOM, WSP Chile, Worley Chile, Hatch Chile, Ausenco Chile, Bechtel Chile, Jacobs Chile, Applus Chile, SGS Chile, Bureau Veritas Chile, Dessau Chile, Moller y Pérez-Cotapos, Socovesa, Empresas Siena, EBCO, Ingevec, Icafal, Constructora Lo Campino]
+  servicios_turismo: [ISS Chile, Securitas Chile, Prosegur Chile, Verisure Chile, Aliservice, Compass Group Chile, Accor Chile, Marriott Chile, Hilton Chile, Explora, LATAM Travel, Cocha, Viajes Falabella, Dreams, Sun Monticello, Fantasilandia]
+  educacion_organizaciones: [Universidad de Chile, Pontificia Universidad Católica, Universidad de Santiago, Universidad de Concepción, Universidad Austral, Universidad de Talca, Universidad de La Frontera, Universidad Católica del Norte, Universidad de Antofagasta, Universidad de Magallanes, Universidad de Tarapacá, Universidad Adolfo Ibáñez, Universidad de los Andes, Universidad del Desarrollo, UNAB, Santo Tomás, Duoc UC, INACAP, AIEP, CFT regionales, SIP Red de Colegios, Fundación Belén Educa, Fundación Ciudad del Niño, Fundación Mi Casa, Teletón, Hogar de Cristo, TECHO, Coanil, CMPC Fundación]
+  reclutamiento_outsourcing: [ManpowerGroup Chile, Randstad Chile, Robert Half Chile, Michael Page Chile, Robert Walters Chile, Hays Chile, Talentfinder, Teamwork, Xinerlink / Xinergia, GrupoExpro, ECRGROUP, Alternattiva, Mandomedio, HR Buró, Global Executive, Perceptual, Abenis, BC Tecnología]
