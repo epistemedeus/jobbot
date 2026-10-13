@@ -29,6 +29,11 @@ if ! run_py python -m jobbot.ops.precommit; then
 	exit 0
 fi
 
+# git exported GIT_DIR / GIT_INDEX_FILE for the checks above. From a linked worktree,
+# a `git init` inside the suite would inherit them and mark the shared repo bare.
+# shellcheck disable=SC2046
+unset $(git rev-parse --local-env-vars)
+
 # Note: tests run against the working tree, not the staged snapshot. Stashing to
 # isolate the index can lose work when a hook fails, and a partial commit is the
 # rare case; the guard above is the one that must never be bypassed.
