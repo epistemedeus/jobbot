@@ -26,6 +26,24 @@ def test_normalize_ml_aliases() -> None:
     assert normalize_skill("machine-learning") == "machine_learning"
 
 
+def test_visualization_tool_aliases() -> None:
+    for name in ("Power BI", "PowerBI", "Microsoft Power BI", "power-bi"):
+        assert normalize_skill(name) == "power_bi"
+    assert normalize_skill("ggplot") == normalize_skill("ggplot2") == "ggplot2"
+    assert normalize_skill("pyplot") == normalize_skill("Matplotlib") == "matplotlib"
+    assert normalize_skill("Looker") == "looker"
+
+
+def test_looker_studio_is_not_looker() -> None:
+    """Looker Studio is a different product: a shared word must not merge them."""
+    assert normalize_skill("Looker Studio") == "looker_studio"
+    assert normalize_skill("Looker Studio") != normalize_skill("Looker")
+
+
+def test_dax_is_identity_only() -> None:
+    assert normalize_skill("DAX") == "dax"
+
+
 def test_sql_alias_not_matched_inside_typescript() -> None:
     """Regression: 'sql' must not match inside 'typescript'."""
     assert normalize_skill("TypeScript") != "sql"

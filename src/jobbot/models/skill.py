@@ -3,8 +3,17 @@
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Mapping
+from typing import Any
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    Field,
+    HttpUrl,
+    PrivateAttr,
+    ValidatorFunctionWrapHandler,
+    model_validator,
+)
 
 
 class SkillGroups(BaseModel):
@@ -17,6 +26,17 @@ class SkillGroups(BaseModel):
     cloud: list[str] = Field(default_factory=list)
     statistics: list[str] = Field(default_factory=list)
     engineering: list[str] = Field(default_factory=list)
+
+    # model_dump puts declared fields before extra keys; the CV follows the profile instead.
+    _order: list[str] = PrivateAttr(default_factory=list)
+
+    @model_validator(mode="wrap")
+    @classmethod
+    def _keep_profile_order(cls, data: Any, handler: ValidatorFunctionWrapHandler) -> Any:
+        model = handler(data)
+        if isinstance(data, Mapping) and isinstance(model, SkillGroups):
+            model._order = [str(key) for key in data]
+        return model
 
     def all_skills(self) -> list[str]:
         seen: set[str] = set()
@@ -41,7 +61,8 @@ class SkillGroups(BaseModel):
 
     def _groups(self) -> list[tuple[str, list[str]]]:
         data = self.model_dump()
-        return [(str(k), list(v)) for k, v in data.items() if isinstance(v, list)]
+        keys = [k for k in self._order if k in data] + [k for k in data if k not in self._order]
+        return [(str(k), list(data[k])) for k in keys if isinstance(data[k], list)]
 
     def _group_values(self) -> list[list[str]]:
         return [values for _, values in self._groups()]

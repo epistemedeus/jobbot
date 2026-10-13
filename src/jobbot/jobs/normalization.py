@@ -74,6 +74,12 @@ _GROUPS: dict[str, list[str]] = {
     "genai": ["genai", "generative ai", "llm", "llms", "langchain"],
     "scala": ["scala"],
     "spark": ["spark", "pyspark", "databricks"],
+    "power_bi": ["power bi", "powerbi", "microsoft power bi"],
+    "ggplot2": ["ggplot2", "ggplot"],
+    "matplotlib": ["matplotlib", "pyplot"],
+    "looker": ["looker"],
+    # A different product: its longer alias outscores "looker" so the two never merge.
+    "looker_studio": ["looker studio"],
 }
 
 

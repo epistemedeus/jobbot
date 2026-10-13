@@ -167,8 +167,21 @@ def _bold_latex(text: str) -> str:
     return rf"\textbf{{{escape_latex(text)}}}"
 
 
-def _group_label(name: str) -> str:
-    return name.replace("_", " ").title()
+# Translations only: a key missing here prints title-cased, as in every language.
+_GROUP_LABELS: dict[Language, dict[str, str]] = {
+    "es": {
+        "programming": "Programación",
+        "machine_learning": "Machine Learning",
+        "cloud": "Cloud",
+        "statistics": "Estadística",
+        "engineering": "Ingeniería",
+        "visualization": "Herramientas de visualización",
+    },
+}
+
+
+def _group_label(name: str, language: Language = "en") -> str:
+    return _GROUP_LABELS.get(language, {}).get(name) or name.replace("_", " ").title()
 
 
 def _edu_dates(edu: Education) -> str:
@@ -245,7 +258,7 @@ def render_cv_tex(
         specialties_line=_specialties_line_latex(candidate),
         metrics_line=_metrics_line_latex,
         edu_dates=_edu_dates,
-        group_label=_group_label,
+        group_label=lambda name: _group_label(name, cv_language(style)),
         bold=_bold_latex,
         name_first=name_first,
         name_last=name_last,
