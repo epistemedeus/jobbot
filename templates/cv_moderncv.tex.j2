@@ -72,6 +72,11 @@
 {{ candidate.summary | latex_para }}
 {% endif %}
 
+{% if candidate.specialties %}
+\section{Especialidades}
+\cvitem{}{ {{- specialties_line -}} }
+{% endif %}
+
 {% if experiences %}
 \section{Experiencia Profesional}
 {% for exp, achievements in experiences %}
@@ -117,7 +122,7 @@
 {% if publications %}
 \section{Publicaciones}
 {% for pub in publications %}
-\cvitem{ {{- pub.year if pub.year else '' -}} }{{ '{' }}{% if pub.journal %}\textbf{ {{- pub.journal | latex -}} } – {% endif %}\emph{ {{- pub.title | latex -}} }{% if pub.status %} ({{ pub.status | latex }}){% endif %}{% if pub.doi %} \href{https://doi.org/{{ pub.doi }}}{doi:{{ pub.doi | latex }}}{% elif pub.url %} \href{ {{- pub.url | string | latex_url -}} }{ {{- pub.url | string | latex -}} }{% endif %}{{ '}' }}
+\cvitem{ {{- pub.year if pub.year else '' -}} }{{ '{' }}{% if pub.journal %}\textbf{ {{- pub.journal | latex -}} } – {% endif %}\emph{ {{- pub.title | latex -}} }{% if pub.authors %}. {{ pub.authors | map('latex') | join(', ') }}{% endif %}{% if pub.status %} ({{ pub.status | latex }}){% endif %}{% if pub.doi %} \href{https://doi.org/{{ pub.doi }}}{doi:{{ pub.doi | latex }}}{% elif pub.url %} \href{ {{- pub.url | string | latex_url -}} }{ {{- pub.url | string | latex -}} }{% endif %}{{ '}' }}
 {% endfor %}
 {% endif %}
 

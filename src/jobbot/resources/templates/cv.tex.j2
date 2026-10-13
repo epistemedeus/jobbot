@@ -54,6 +54,16 @@
 {% endfor %}
 {% endif %}
 
+{% if projects %}
+\section*{Projects}
+{% for project in projects %}
+{{ bold(project.name) }}{% if project.url %} --- {{ href(project.url) }}{% endif %}\\
+{{ project.description | latex_para }}{% if project.tags %} \textit{({{ project.tags | map('latex') | join(', ') }})}{% endif %}
+
+
+{% endfor %}
+{% endif %}
+
 {% if candidate.education %}
 \section*{Education}
 {% for edu in candidate.education %}
@@ -83,6 +93,36 @@
   \item {% if pub.authors %}{{ pub.authors | map('latex') | join(', ') }}. {% endif %}{{ pub.title | latex }}{% if pub.journal %} --- \textit{ {{ pub.journal | latex }} }{% endif %}{% if pub.year %}, {{ pub.year }}{% endif %}{% if pub.status %} ({{ pub.status | latex }}){% endif %}{% if pub.doi %}. \href{https://doi.org/{{ pub.doi }}}{doi:{{ pub.doi | latex }}}{% elif pub.url %}. \href{ {{- pub.url | string | latex_url -}} }{ {{- pub.url | string | latex -}} }{% endif %}
 {% endfor %}
 \end{itemize}
+{% endif %}
+
+{% if cv_credit %}
+\vspace{1.2em}
+{\footnotesize {{ mark | latex }} --- \url{ {{- repo_url -}} }}
+{% endif %}
+{% if application_log %}
+{% set log = application_log %}
+% jobbot:application-log
+\clearpage
+\section*{ {{- log.text.title | latex -}} }
+{{ log.text.created | latex }}{% if log.project_url %} ({{ href(log.project_url) }}){% endif %} {{ log.text.for_posting | latex }} \textbf{ {{- (log.job_title ~ ' @ ' ~ log.company) | latex -}} }
+{% if log.job_url %}\\
+{{ href(log.job_url) }}
+{% endif %}
+
+{{ log.text.generated | latex }}: {{ log.generated_on.isoformat() }}
+
+{{ log.text.match | latex }}: {{ log.percent }}\% ({{ log.text.match_note | latex }})
+{% if log.evidence %}
+
+\textbf{ {{- log.text.evidence | latex -}} }
+\begin{itemize}
+{% for line in log.evidence %}
+{% set where = {'skills': 'Skills', 'experience': 'Experience', 'project': 'Projects', 'education': 'Education', 'summary': 'Summary'}[line.kind] %}
+  \item {{ line.requirement | latex }} $\rightarrow$ {{ where }}{% if line.pointer %} ({{ line.pointer | latex }}){% endif %}
+
+{% endfor %}
+\end{itemize}
+{% endif %}
 {% endif %}
 
 \end{document}

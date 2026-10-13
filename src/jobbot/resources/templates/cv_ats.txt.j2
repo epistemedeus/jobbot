@@ -5,6 +5,7 @@
 {% endif %}{% if personal.phone %}Phone: {{ personal.phone }}
 {% endif %}{% if personal.linkedin %}LinkedIn: {{ personal.linkedin }}
 {% endif %}{% if personal.github %}GitHub: {{ personal.github }}
+{% endif %}{% if personal.orcid_url %}ORCID: {{ personal.orcid_url }}
 {% endif %}
 
 {% if candidate.summary %}SUMMARY
@@ -16,21 +17,30 @@
 {% endif %}{% if experiences %}EXPERIENCE
 {% for exp, achievements in experiences %}
 {{ exp.title }} — {{ exp.company }}
-{{ exp.format_date_range() }}{% if exp.location %} | {{ exp.location }}{% endif %}
+{{ exp.format_date_range() }}{% if exp.location %} | {{ exp.location }}{% endif +%}
 {% if exp.description %}{{ exp.description | trim }}
-{% endif %}{% for ach in achievements %}- {{ ach.text | trim }}{% if ach.metrics %} ({{ metrics_line(ach.metrics) }}){% endif %}
+{% endif %}{% for ach in achievements %}- {{ ach.text | trim }}{% if ach.metrics %} ({{ metrics_line(ach.metrics) }}){% endif +%}
 {% endfor %}
-{% endfor %}{% endif %}{% if candidate.education %}
+{% endfor %}{% endif %}{% if projects +%}
+PROJECTS
+{% for project in projects %}{{ project.name }}{% if project.url %} — {{ project.url }}{% endif +%}
+{{ project.description | trim }}
+{% if project.tags %}{{ project.tags | join(', ') }}
+{% endif %}{% if not loop.last %}
+
+{% endif %}{% endfor %}{% endif %}{% if candidate.education +%}
 EDUCATION
 {% for edu in candidate.education %}
 {{ edu.degree }} — {{ edu.institution }}
 {% if edu.start_date or edu.end_date %}{{ edu_dates(edu) }}
 {% endif %}{% if edu.details %}{{ edu.details | trim }}
 {% endif %}
-{% endfor %}{% endif %}{% if skills %}
+{% endfor %}{% endif %}{% if skills +%}
 SKILLS
 {% for group, items in skills.items() %}{{ group_label(group) }}: {{ items | join(', ') }}
-{% endfor %}{% endif %}{% if publications %}
+{% endfor %}{% endif %}{% if publications +%}
 PUBLICATIONS
-{% for pub in publications %}- {% if pub.authors %}{{ pub.authors | join(', ') }}. {% endif %}{{ pub.title }}{% if pub.journal %}. {{ pub.journal }}{% endif %}{% if pub.year %} ({{ pub.year }}){% endif %}{% if pub.status %} [{{ pub.status }}]{% endif %}{% if pub.doi %}. doi:{{ pub.doi }}{% elif pub.url %}. {{ pub.url }}{% endif %}
+{% for pub in publications %}- {% if pub.authors %}{{ pub.authors | join(', ') }}. {% endif %}{{ pub.title }}{% if pub.journal %}. {{ pub.journal }}{% endif %}{% if pub.year %} ({{ pub.year }}){% endif %}{% if pub.status %} [{{ pub.status }}]{% endif %}{% if pub.doi %}. doi:{{ pub.doi }}{% elif pub.url %}. {{ pub.url }}{% endif +%}
 {% endfor %}{% endif %}
+{% if cv_credit %}{{ cv_credit }}
+{% endif %}
