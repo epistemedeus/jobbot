@@ -102,7 +102,6 @@ def build_cv(
         written.append(ats_path)
         return written
 
-    # For job builds, also emit ATS alongside PDF
     tex_path = out_dir / "cv.tex"
     log = None
     if application_log is not None and job is not None and match is not None:
@@ -121,17 +120,16 @@ def build_cv(
     logger.info("Wrote LaTeX CV: %s", tex_path)
     written.append(tex_path)
 
+    # Written before XeLaTeX: a TeX failure must not leave the ATS text of an older profile.
+    ats_path = out_dir / "cv_ats.txt"
+    ats_path.write_text(
+        render_cv_ats(candidate, templates_dir, selection, credit=credit),
+        encoding="utf-8",
+    )
+    logger.info("Wrote ATS CV: %s", ats_path)
+
     pdf_path = _compile_xelatex(tex_path, out_dir)
-    written.append(pdf_path)
-
-    if job is not None:
-        ats_path = out_dir / "cv_ats.txt"
-        ats_path.write_text(
-            render_cv_ats(candidate, templates_dir, selection, credit=credit),
-            encoding="utf-8",
-        )
-        written.append(ats_path)
-
+    written.extend([pdf_path, ats_path])
     return written
 
 
