@@ -114,9 +114,12 @@
 
 {% if skills %}
 \section{Habilidades}
+% Skill names are terms to match, not prose: break between them, never inside one.
+\begingroup\hyphenpenalty=10000\exhyphenpenalty=10000\emergencystretch=3em
 {% for group, items in skills.items() %}
 \cvitem{ {{- group_label(group) | latex -}} }{ {{- items | map('latex') | join(', ') -}} }
 {% endfor %}
+\par\endgroup
 {% endif %}
 
 {% if publications %}

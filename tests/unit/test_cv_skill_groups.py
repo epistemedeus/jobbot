@@ -89,6 +89,26 @@ def test_groups_print_in_profile_order(project_root: Path) -> None:
     assert ats.index("Visualization:") < ats.index("Statistics:") < ats.index("Programming:")
 
 
+_NO_HYPHENS = r"\begingroup\hyphenpenalty=10000\exhyphenpenalty=10000"
+
+
+def test_skill_names_are_never_hyphenated(project_root: Path) -> None:
+    """'statsmo-dels' in the PDF text layer is a skill no parser recognises."""
+    candidate = Candidate.model_validate(_grouped_profile())
+    for style, heading in ((CvStyle.MODERNCV, r"\section{Habilidades}"),
+                           (CvStyle.PLAIN, r"\section*{Skills}")):
+        tex = render_cv_tex(candidate, project_root / "templates", style=style)
+        block = tex.split(heading, 1)[1].split(r"\section", 1)[0]
+
+        assert _NO_HYPHENS in block, style
+        assert block.index(_NO_HYPHENS) < block.index("Python"), style
+        # Without hyphenation a justified line may find no good break and overflow.
+        assert r"\emergencystretch=" in block.split("Python", 1)[0], style
+        # The penalties act when the paragraph ends, so it must end inside the group.
+        assert block.rstrip().endswith(r"\par\endgroup"), style
+        assert "ggplot2" in block
+
+
 def test_profile_order_survives_a_model_copy() -> None:
     data = sample_profile_dict()
     data["skills"] = {"visualization": ["Power BI"], "programming": ["Python"]}
