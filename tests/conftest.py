@@ -12,6 +12,25 @@ from tests.fixtures.cv_pdf import write_sample_cv, write_scanned_cv
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
+# `git rev-parse --local-env-vars`: what ties a git process to one repository.
+GIT_REPO_ENV: tuple[str, ...] = (
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_CONFIG",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_CONFIG_COUNT",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_IMPLICIT_WORK_TREE",
+    "GIT_GRAFT_FILE",
+    "GIT_INDEX_FILE",
+    "GIT_NO_REPLACE_OBJECTS",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_PREFIX",
+    "GIT_SHALLOW_FILE",
+    "GIT_COMMON_DIR",
+)
+
 
 def plain_cli_text(text: str) -> str:
     """Strip ANSI and soft-wrap newlines so CLI asserts survive CI terminals."""
@@ -30,6 +49,13 @@ def _stable_cli_console(monkeypatch: pytest.MonkeyPatch) -> None:
     cli.err_console = Console(
         stderr=True, force_terminal=False, no_color=True, width=120, highlight=False
     )
+
+
+@pytest.fixture(autouse=True)
+def _no_inherited_git_repo(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A hook exports GIT_DIR: a test's `git init` would otherwise rewrite the real repo."""
+    for name in GIT_REPO_ENV:
+        monkeypatch.delenv(name, raising=False)
 
 
 @pytest.fixture(autouse=True)
