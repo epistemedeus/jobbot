@@ -19,6 +19,8 @@ jobs:
         run: uv python install 3.12
       - name: Sync
         run: uv sync --group dev
+      - name: PII guard (tracked tree)
+        run: uv run python -m jobbot.ops.pii_guard --all
       - name: Ruff
         run: uv run ruff check .
       - name: Mypy
