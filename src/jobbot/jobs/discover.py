@@ -40,6 +40,10 @@ class SiteOutcome:
     jobs: list[JobPosting] = field(default_factory=list)
     detail: str = ""
     total: int | None = None
+    feed_size: int | None = None
+    """Items in the source's whole feed, when the source reads one feed and filters locally."""
+    kept_ids: tuple[str, ...] = ()
+    """Ids that passed the query and local filters, before ``--limit``."""
 
     @property
     def answered(self) -> bool:
@@ -207,6 +211,20 @@ def decide(
         else:
             decisions.append(Decision(job, Action.STORE, "", None, state))
     return decisions
+
+
+def feed_summary(outcomes: Sequence[SiteOutcome]) -> tuple[int, int] | None:
+    """``(N, M)``: items in the feed and distinct ones kept locally across every query.
+
+    Only for sources that read one whole feed (``feed_size`` set); the size comes from
+    the feed itself, never a constant.
+    """
+    read = [outcome for outcome in outcomes if outcome.feed_size is not None]
+    if not read:
+        return None
+    size = max(outcome.feed_size or 0 for outcome in read)
+    kept = {job_id for outcome in read for job_id in outcome.kept_ids}
+    return size, len(kept)
 
 
 def exit_code_for(outcomes: Sequence[SiteOutcome]) -> int:

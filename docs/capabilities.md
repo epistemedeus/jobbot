@@ -8,7 +8,7 @@ writing it again — the promotion rule lives in
 [AGENTS.md](https://github.com/ljofreflor/jobbot/blob/main/AGENTS.md), section
 "Design economics".
 
-113 commands, 165 modules, 873 public symbols.
+113 commands, 165 modules, 874 public symbols.
 
 ## Commands
 
@@ -274,7 +274,7 @@ writing it again — the promotion rule lives in
 - `closing.py` — When a posting stops taking applications, read from what it publishes — or nothing. · `ClosingState`, `utc_now`, `Closing`, `zone_from_text`, `parse_closing_value`, `find_closing`, `closing_state`, `describe_closing`
 - `closure.py` — Detect a posting that says the vacancy is already filled. Evidence, or nothing. · `visible_soup`, `closure_evidence`, `fetch_posting_text`, `closure_evidence_for_job`
 - `conditions.py` — A stored posting's special conditions: closed, residency, language, contract, pay… · `ConditionKind`, `Condition`, `cefr_rank`, `level_from_text`, `language_code`, `language_mentions`, `posting_conditions`
-- `discover.py` — `jobs discover`: one command, one adapter per public source, a preview before storing. · `SiteStatus`, `SiteOutcome`, `SiteTarget`, `JobFilters`, `DiscoverAdapter`, `register_source`, `source_names`, `discover_adapter`, `registry_sites_for`, `Action`, `Decision`, `unique_jobs`, `decide`, `exit_code_for`
+- `discover.py` — `jobs discover`: one command, one adapter per public source, a preview before storing. · `SiteStatus`, `SiteOutcome`, `SiteTarget`, `JobFilters`, `DiscoverAdapter`, `register_source`, `source_names`, `discover_adapter`, `registry_sites_for`, `Action`, `Decision`, `unique_jobs`, `decide`, `feed_summary`, `exit_code_for`
 - `eligibility.py` — Each posting condition against the candidate: meets, ask the candidate, or dealbreaker. · `VerdictStatus`, `Verdict`, `ApplicationAnswers`, `default_answers_path`, `job_answers_path`, `load_application_answers`, `assess_conditions`, `has_dealbreaker`, `format_conditions_report`
 - `freshness.py` — How old a posting is, and whether that is still worth applying to. · `age_in_days`, `is_fresh`, `age_label`
 - `from_url.py` — Ingest a hard job URL: know the portal, fetch the JD, store, match, prepare. · `UnknownPortalError`, `UnsupportedPortalFetchError`, `InvalidPostingUrlError`, `PortalShapeChangedError`, `GetFromUrlResult`, `ingest_hard_link`, `fetch_workday_posting`

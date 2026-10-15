@@ -456,3 +456,65 @@ def test_sources_list_includes_un_careers() -> None:
     assert "un-careers" in source_names()
     assert discover_adapter("un-careers").default_details is False
     assert discover_adapter("workday").default_details is True
+
+
+def _un_profile(root: Path, queries: list[str]) -> None:
+    from tests.fixtures.profile import public_health_profile_dict
+
+    raw = public_health_profile_dict()
+    raw["search_queries"] = queries
+    (root / "data").mkdir(exist_ok=True)
+    (root / "data" / "profile.yaml").write_text(
+        yaml.safe_dump(raw, allow_unicode=True, sort_keys=False), encoding="utf-8"
+    )
+
+
+def test_un_careers_profile_queries_dry_run_reads_the_feed_once_and_no_posting(
+    un_workspace: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from jobbot.adapters.un_careers.feed import parse_feed
+    from tests.fixtures.un_careers_http import FakeUnCareers, fixture_text
+    from tests.fixtures.un_careers_http import install as install_un
+
+    _un_profile(un_workspace, ["health", "public health", "mental health"])
+    fake = install_un(monkeypatch, FakeUnCareers())
+    feed_size = len(parse_feed(fixture_text("jobfeed.xml")))
+
+    code = _run_un("--dry-run")
+
+    out = plain_cli_text(capsys.readouterr().out)
+    assert code == SUCCESS
+    assert "Queries saved in profile.yaml: health, public health, mental health" in out
+    assert fake.paths() == ["/robots.txt", "/jobfeed"]
+    assert fake.detail_calls == []
+    assert f"un-careers: {feed_size} ítems en el feed, 3 tras el filtro (dry-run)" in out
+    assert not (un_workspace / "data" / "jobbot.sqlite").exists()
+    assert not (un_workspace / "output" / "jobs").exists()
+
+
+def test_un_careers_summary_counts_the_feed_it_read_and_the_local_filters(
+    un_workspace: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from tests.fixtures.un_careers_http import FakeUnCareers, fixture_text
+    from tests.fixtures.un_careers_http import install as install_un
+
+    _un_profile(un_workspace, ["health", "public health"])
+    fake = install_un(monkeypatch, FakeUnCareers())
+    assert _run_un("--level", "CON", "--dry-run") == SUCCESS
+    graded = plain_cli_text(capsys.readouterr().out)
+    install_un(monkeypatch, FakeUnCareers(feed=fixture_text("jobfeed_empty.xml")))
+    assert _run_un("--dry-run") == SUCCESS
+    empty = plain_cli_text(capsys.readouterr().out)
+
+    assert ", 1 tras el filtro (dry-run)" in graded
+    assert fake.detail_calls == []
+    assert "un-careers: 0 ítems en el feed, 0 tras el filtro (dry-run)" in empty
+
+
+def test_workday_prints_no_feed_summary(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _open_site(monkeypatch)
+
+    assert _run("--site", SITE_URL, "--query", "epidemiology", "--dry-run") == SUCCESS
+    assert "ítems en el feed" not in plain_cli_text(capsys.readouterr().out)

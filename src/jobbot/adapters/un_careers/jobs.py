@@ -67,7 +67,15 @@ class UnCareersDiscover:
         if notes:
             detail += "; " + "; ".join(notes)
         status = SiteStatus.OK if jobs else SiteStatus.EMPTY
-        return SiteOutcome(HOST, status, jobs=jobs, detail=detail, total=len(kept))
+        return SiteOutcome(
+            HOST,
+            status,
+            jobs=jobs,
+            detail=detail,
+            total=len(kept),
+            feed_size=len(items),
+            kept_ids=tuple(job.source_job_id or job.url or job.title for job in kept),
+        )
 
     def _with_detail(self, job: JobPosting, notes: list[str]) -> JobPosting:
         try:

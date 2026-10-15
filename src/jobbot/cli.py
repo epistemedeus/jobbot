@@ -2724,6 +2724,7 @@ def jobs_discover(
         decide,
         discover_adapter,
         exit_code_for,
+        feed_summary,
     )
     from jobbot.jobs.repository import StoredJobIndex
 
@@ -2777,6 +2778,14 @@ def jobs_discover(
                 line += f" ({outcome.detail})"
             style = "green" if outcome.answered else "yellow"
             console.print(line, style=style, markup=False, highlight=False)
+    fed = feed_summary(outcomes)
+    if fed is not None:
+        console.print(
+            f"{source}: {fed[0]} ítems en el feed, {fed[1]} tras el filtro"
+            + (" (dry-run)" if dry_run else ""),
+            markup=False,
+            highlight=False,
+        )
 
     found = [job for outcome in outcomes for job in outcome.jobs]
     now = _closing_now()
